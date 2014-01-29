@@ -1,0 +1,43 @@
+<idea-plugin version="2">
+  <id>com.sourcepawn.idea.support</id>
+  <name>SourcePawn</name>
+  <version>1.0</version>
+  <vendor email="sourcepawn@eggsampler.com" url="https://github.com/eggsampler/sourcepawn">Eggsampler</vendor>
+
+  <description><![CDATA[
+      SourcePawn language support in IDEA.<br>
+    ]]></description>
+
+  <change-notes><![CDATA[
+      First version.<br>
+    ]]>
+  </change-notes>
+
+  <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
+  <idea-version since-build="131"/>
+
+  <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
+       on how to target different products -->
+  <!-- uncomment to enable plugin in all products
+  <depends>com.intellij.modules.lang</depends>
+  -->
+
+  <extensions defaultExtensionNs="com.intellij">
+    <!-- Add your extensions here -->
+    <fileTypeFactory implementation="com.sourcepawn.SourcePawnFileTypeFactory"/>
+      <lang.parserDefinition language="Simple" implementationClass="com.sourcepawn.SourcePawnParserDefinition"/>
+  </extensions>
+
+  <application-components>
+    <!-- Add your application components here -->
+  </application-components>
+
+  <project-components>
+    <!-- Add your project components here -->
+  </project-components>
+
+  <actions>
+    <!-- Add your actions here -->
+  </actions>
+
+</idea-plugin>

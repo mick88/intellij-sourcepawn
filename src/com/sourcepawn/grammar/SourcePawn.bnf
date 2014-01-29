@@ -1,0 +1,213 @@
+
+{
+    parserClass="com.sourcepawn.parser.SourcePawnParser"
+
+    extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+    psiClassPrefix="SourcePawn"
+    psiImplClassSuffix="Impl"
+    psiPackage="com.sourcepawn.psi"
+    psiImplPackage="com.sourcepawn.psi.impl"
+
+    elementTypeHolderClass="com.sourcepawn.psi.SourcePawnTypes"
+    elementTypeClass="com.sourcepawn.psi.SourcePawnElementType"
+    tokenTypeClass="com.sourcepawn.psi.SourcePawnTokenType"
+
+    consumeTokenMethod(".*_expr|expr")="consumeTokenFast"
+
+    // from http://www.compuphase.com/pawn/Pawn_Language_Guide.pdf
+    tokens = [
+        OP_ADD="+"
+        OP_SUB="-"
+        OP_MUL="*"
+        OP_DIV="/"
+        OP_REM="%"
+        OP_INC="++"
+        OP_DEC="--"
+        OP_BITNOT="~"
+        OP_BITSHIFTR=">>"
+        OP_BITSHIFTR_L=">>>"
+        OP_BITSHIFTL="<<"
+        OP_BITAND="&"
+        OP_BITOR="|"
+        OP_EQ="="
+        OP_INCEQ="+="
+        OP_DECEQ="-="
+        OP_MULEQ="*="
+        OP_REMEQ="%="
+        OP_RSHIFTEQ=">>="
+        OP_RSHIFTLEQ=">>>="
+        OP_LSHIFTEQ="<<="
+        OP_BITANDEQ="&="
+        OP_BITOREQ="|="
+        OP_BITXOREQ="^="
+        OP_EQEQ="=="
+        OP_NEQ="!="
+        OP_LT="<"
+        OP_LTEQ="<="
+        OP_GT=">"
+        OP_GTEQ=">="
+        OP_NOT="!"
+        OP_OR="||"
+        OP_AND="&&"
+
+        BRACKET_SQUAREL="["
+        BRACKET_SQUARER="]"
+        BRACKET_CURLYL="{"
+        BRACKET_CURLYR="}"
+        BRACKET_PARANL="("
+        BRACKET_PARANR=")"
+
+        OP_DEFINED="defined"
+        OP_SIZEOF="sizeof"
+        OP_STATE="state"
+        OP_TAGOF="tagof"
+
+        DOT="."
+        DOTDOTDOT="..."
+        COLON=":"
+        SEMICOLON=";"
+        QUESTION="?"
+        COMMA=","
+
+        KEY_ASSERT="assert"
+        KEY_BREAK="break"
+        KEY_CASE="case"
+        KEY_CONTINUE="continue"
+        KEY_DEFAULT="default"
+        KEY_DO="do"
+        KEY_ELSE="else"
+        KEY_EXIT="exit"
+        KEY_FOR="for"
+        KEY_GOTO="goto"
+        KEY_IF="if"
+        KEY_RETURN="return"
+        KEY_SLEEP="sleep"
+        KEY_STATE="state"
+        KEY_SWITCH="switch"
+        KEY_WHILE="while"
+
+        DIR_ASSERT="#assert"
+        DIR_DEFINE="#define"
+        DIR_ELSE="#else"
+        DIR_ELSEIF="#elseif"
+        DIR_ENDIF="#endif"
+        DIR_ENDINPUT="#endinput"
+        DIR_ERROR="#error"
+        DIR_FILE="#file"
+        DIR_IF="#if"
+        DIR_INCLUDE="#include"
+        DIR_LINE="#line"
+        DIR_PRAGMA="#pragma"
+        DIR_SECTION="#section"
+        DIR_TRYINC="#tryinclude"
+        DIR_UNDEF="#undef"
+
+        OTHER_CONST="const"
+        OTHER_FORWARD="forward"
+        OTHER_NATIVE="native"
+        OTHER_NEW="new"
+        OTHER_OPERATOR="operator"
+        OTHER_PUBLIC="public"
+        OTHER_STATIC="static"
+        OTHER_STOCK="stock"
+        OTHER_DECL="decl"
+
+        BOOLEAN_TRUE="true"
+        BOOLEAN_FALSE="false"
+
+        string="regexp:\"([^\"\\]|\\.)*\""
+        character="regexp:'.'"
+        number='regexp:\d+'
+        float='regexp:\d+\.\d+'
+        id='regexp:\p{Alpha}\w*'
+        line_comment="regexp://.*"
+        block_comment="regexp:/\*(.|\n)+?\*/"
+    ]
+
+    name(".*expr")='expression'
+    extends(".*expr")=expr
+}
+
+grammar ::= (func_decl | grammar_element) *
+
+private grammar_element ::= directive | expr SEMICOLON?
+
+directive ::= dir_include | dir_define | dir_undef | dir_pragma
+
+dir_include ::= DIR_INCLUDE OP_LT identifier OP_GT
+dir_define ::= DIR_DEFINE identifier literal_expr
+dir_undef ::= DIR_UNDEF identifier
+dir_pragma ::= DIR_PRAGMA identifier literal_expr
+// todo: all directives or just a catch-all ?
+
+identifier ::= id
+float_literal ::= float
+number_literal ::= number
+boolean_literal ::= BOOLEAN_TRUE | BOOLEAN_FALSE
+character_literal ::= character
+string_literal ::= string
+literal_expr ::= float_literal | number_literal | boolean_literal | character_literal | string_literal
+modifier ::= OTHER_NATIVE | OTHER_PUBLIC | OTHER_STATIC | OTHER_STOCK | OTHER_FORWARD | OTHER_CONST
+type ::= '_' | id
+ref_expr ::= modifier? [type COLON] identifier array_bounds_expr?
+ref_list ::= ref_expr (COMMA ref_expr)*
+
+// todo: proper operator precedence
+expr ::= func_call_expr |
+    decl_expr |
+    paran_expr |
+    single_expr | ternary_expr | bool_expr | prefix_expr | bit_expr | assign_expr | math_expr | rel_expr | incdec_expr |
+    for_expr | if_expr | else_expr |
+    return_expr |
+    ref_expr | literal_expr
+
+expr_list ::= expr (COMMA expr)*
+
+assign_expr ::= expr assign_op expr { rightAssociative=true }
+assign_op ::= OP_EQ | OP_INCEQ | OP_DECEQ | OP_MULEQ | OP_REMEQ | OP_RSHIFTEQ | OP_RSHIFTLEQ | OP_LSHIFTEQ | OP_BITANDEQ | OP_BITOREQ | OP_BITXOREQ
+
+decl_expr ::= (OTHER_NEW | OTHER_DECL | modifier) ref_list [OP_EQ (array_init_expr | expr)]
+array_bounds_expr ::= BRACKET_SQUAREL expr? BRACKET_SQUARER
+array_init_expr ::= BRACKET_CURLYL array_init_list* BRACKET_CURLYR
+array_init_list ::= array_init_value (COMMA array_init_value)*
+array_init_value ::= literal_expr | assign_expr
+
+func_decl ::= modifier? ref_expr BRACKET_PARANL ref_list* BRACKET_PARANR block_expr
+block_expr ::= BRACKET_CURLYL grammar_element* BRACKET_CURLYR
+func_call_expr ::= !modifier ref_expr BRACKET_PARANL expr_list* BRACKET_PARANR !block_expr
+
+math_expr ::= expr math_op expr
+math_op ::= OP_ADD | OP_SUB | OP_MUL | OP_DIV | OP_REM
+
+return_expr ::= KEY_RETURN expr
+
+for_expr ::= KEY_FOR BRACKET_PARANL expr SEMICOLON expr SEMICOLON expr BRACKET_PARANR block_expr
+
+rel_expr ::= expr rel_op expr
+rel_op ::= OP_EQEQ | OP_NEQ | OP_LT | OP_LTEQ | OP_GT | OP_GTEQ
+
+bool_expr ::= expr bool_op expr
+bool_op ::= OP_OR | OP_AND
+
+prefix_expr ::= prefix_op expr
+prefix_op ::= OP_NOT | OP_ADD | OP_SUB | OP_OP_BITNOT
+
+single_expr ::= single_op expr
+single_op ::= OP_DEFINED | OP_SIZEOF | OP_STATE | OP_TAGOF
+
+bit_expr ::= expr bit_op expr
+bit_op ::= OP_BITSHIFTR | OP_BITSHIFTR_L | OP_BITSHIFTL | OP_BITAND | OP_BITOR
+
+incdec_expr ::= pre_inc_expr | post_inc_expr | pre_dec_expr | post_dec_expr
+pre_inc_expr ::= OP_INC ref_expr;
+post_inc_expr ::= ref_expr OP_INC;
+pre_dec_expr ::= OP_DEC ref_expr;
+post_dec_expr ::= ref_expr OP_DEC;
+
+if_expr ::= KEY_IF BRACKET_PARANL expr BRACKET_PARANR block_expr
+else_expr ::= KEY_ELSE block_expr
+
+paran_expr ::= BRACKET_PARANL expr BRACKET_PARANR
+
+ternary_expr ::= expr QUESTION expr COLON expr

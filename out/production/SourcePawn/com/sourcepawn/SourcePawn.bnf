@@ -1,0 +1,21 @@
+
+{
+  parserClass="com.sourcepawn.parser.SourcePawnParser"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="Simple"
+  psiImplClassSuffix="Impl"
+  psiPackage="com.sourcepawn.psi"
+  psiImplPackage="com.sourcepawn.psi.impl"
+
+  elementTypeHolderClass="com.sourcepawn.psi.SourcePawnTypes"
+  elementTypeClass="com.sourcepawn.psi.SourcePawnElementType"
+  tokenTypeClass="com.sourcepawn.psi.SourcePawnTokenType"
+}
+
+simpleFile ::= item_*
+
+private item_ ::= (property|COMMENT|CRLF)
+
+property ::= (KEY? SEPARATOR VALUE?) | KEY
