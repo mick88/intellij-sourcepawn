@@ -153,12 +153,12 @@ sourcepawnFile ::= topLevelList
 
 private topLevelList ::= topLevel*
 private topLevel ::= topLevelDeclaration {recoverWhile=top_level_recover}
-private top_level_recover ::= !(SYNTAX_SEMICOLON | dirList | modList)
+private top_level_recover ::= !(SYNTAX_SEMICOLON | dirList | modList | componentName)
 
 private topLevelDeclaration ::= directive
                                 | structDeclaration
-                                | functionDeclaration
                                 | enumDeclaration
+                                | functionDeclaration
                                 | globalVarDeclaration
 
 /*
@@ -199,6 +199,7 @@ private statement ::= blockStatement | notBlockStatement
 
 private notBlockStatement ::= localVarDeclaration
                             | ifStatement
+                            | elseStatement
                             | forStatement
                             | whileStatement
                             | doWhileStatement
@@ -232,15 +233,15 @@ endifDirective ::= DIR_ENDIF
  functions
  */
 
-functionDeclaration ::= funcModifierList? typeTag? componentName BRACKET_PARAN_L parameterList? BRACKET_PARAN_R functionCommonBody
-funcModifierList ::= MOD_FORWARD | MOD_NATIVE | MOD_PUBLIC | MOD_STOCK
+functionDeclaration ::= funcModifier? typeTag? componentName BRACKET_PARAN_L parameterList? BRACKET_PARAN_R functionCommonBody
+funcModifier ::= MOD_FORWARD | MOD_NATIVE | MOD_PUBLIC | MOD_STOCK
 private functionCommonBody ::= blockStatement | returnStatement | expression
 
 /*
  parameter
  */
 
-parameter ::= MOD_CONST? typeTag? componentName varInit?
+parameter ::= MOD_CONST? typeTag? componentName arrayAccessExpression? varInit?
 parameterList ::= parameter (SYNTAX_COMMA parameter)* {recoverWhile=parameterListRecovery}
 private parameterListRecovery ::= !BRACKET_PARAN_R
 
@@ -261,28 +262,31 @@ globalVarModifier ::= MOD_PUBLIC | MOD_STATIC | MOD_NEW | MOD_CONST | MOD_DECL
 globalVarDeclaration ::= globalVarModifier varDeclarationPartList SYNTAX_SEMICOLON? {pin=1}
 
 private varDeclarationPartList ::= varDeclarationPart (SYNTAX_COMMA varDeclarationPart)* varInit? {recoverWhile=var_declaration_part_recover}
-varDeclarationPart ::= typeTag? componentName arrayAccessExpression?
+varDeclarationPart ::= typeTag? componentName arrayAccessExpression*
 private var_declaration_part_recover ::= !(SYNTAX_SEMICOLON | BRACKET_CURLY_R | SYNTAX_COMMA | modList)
 
 enumDeclaration ::= MOD_ENUM componentName BRACKET_CURLY_L enumBlock BRACKET_CURLY_R SYNTAX_SEMICOLON?
 enumBlock ::= enumValueDeclaration*
-enumValueDeclaration ::= componentName OP_EQ literalExpression SYNTAX_COMMA?
+enumValueDeclaration ::= typeTag? componentName arrayAccessExpression* SYNTAX_COMMA?
 
 structDeclaration ::= MOD_STRUCT componentName BRACKET_CURLY_L structBlock BRACKET_CURLY_R SYNTAX_SEMICOLON? {pin=1}
 structBlock ::= structValueDeclaration*
-structValueDeclaration ::= MOD_CONST typeTag? componentName arrayAccessExpression? SYNTAX_COMMA?
+structValueDeclaration ::= MOD_CONST typeTag? componentName arrayAccessExpression* SYNTAX_COMMA?
 
 /*
  statements
  */
 
 returnStatement ::= KEY_RETURN expression?
-ifStatement ::= KEY_IF BRACKET_PARAN_L expression BRACKET_PARAN_R statement* [KEY_ELSE statement*]
-forStatement ::= KEY_FOR BRACKET_PARAN_L notBlockStatement? SYNTAX_SEMICOLON notBlockStatement? SYNTAX_SEMICOLON notBlockStatement? BRACKET_PARAN_R statement
+ifStatement ::= KEY_IF BRACKET_PARAN_L expression BRACKET_PARAN_R statement
+elseStatement ::= KEY_ELSE statement
 whileStatement ::= KEY_WHILE BRACKET_PARAN_L expression BRACKET_PARAN_R statement
-doWhileStatement ::= KEY_DO BRACKET_PARAN_L statement BRACKET_PARAN_R KEY_WHILE BRACKET_PARAN_L expression BRACKET_PARAN_R SYNTAX_SEMICOLON
+doWhileStatement ::= KEY_DO statement KEY_WHILE BRACKET_PARAN_L expression BRACKET_PARAN_R
 breakStatement ::= KEY_BREAK
 continueStatement ::= KEY_CONTINUE
+
+forStatement ::= KEY_FOR BRACKET_PARAN_L forInitList? SYNTAX_SEMICOLON expression? SYNTAX_SEMICOLON expression? BRACKET_PARAN_R statement
+forInitList ::= notBlockStatement (SYNTAX_COMMA notBlockStatement)*
 
 switchStatement ::= KEY_SWITCH BRACKET_PARAN_L expression BRACKET_PARAN_R switchBlock
 switchBlock ::= BRACKET_CURLY_L switchCase* defaultCase? BRACKET_CURLY_R {pin=1}
@@ -360,6 +364,6 @@ arrayLiteral ::= BRACKET_CURLY_L expressionList? BRACKET_CURLY_R
 parenthesizedExpression ::= BRACKET_PARAN_L (expression | statement) BRACKET_PARAN_R
 
 referenceExpression ::= identifier
-private callOrArrayAccess ::= typeTag? referenceExpression (callExpression | arrayAccessExpression)
+private callOrArrayAccess ::= typeTag? referenceExpression (callExpression | arrayAccessExpression*)
 left callExpression ::= BRACKET_PARAN_L expressionList? BRACKET_PARAN_R
 left arrayAccessExpression ::= BRACKET_SQUARE_L expression? BRACKET_SQUARE_R
