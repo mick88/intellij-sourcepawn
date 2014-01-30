@@ -1,4 +1,6 @@
 
+// structure based off https://github.com/JetBrains/intellij-haxe/blob/master/grammar/haXe.bnf
+
 {
     parserClass="com.sourcepawn.parser.SourcePawnParser"
 
@@ -13,10 +15,31 @@
     elementTypeClass="com.sourcepawn.psi.SourcePawnElementType"
     tokenTypeClass="com.sourcepawn.psi.SourcePawnTokenType"
 
-    consumeTokenMethod(".*_expr|expr")="consumeTokenFast"
-
     // from http://www.compuphase.com/pawn/Pawn_Language_Guide.pdf
     tokens = [
+        // asignment operators
+        OP_EQ="="
+        OP_INCEQ="+="
+        OP_DECEQ="-="
+        OP_MULEQ="*="
+        OP_DIVEQ="/="
+        OP_REMEQ="%="
+        OP_BITSHIFTREQ=">>="
+        OP_BITUSHIFTREQ=">>>="
+        OP_BITSHIFTLEQ="<<="
+        OP_BITANDEQ="&="
+        OP_BITOREQ="|="
+        OP_BITXOREQ="^="
+
+        // relational operators
+        OP_EQEQ="=="
+        OP_NOTEQ="!="
+        OP_LT="<"
+        OP_LTEQ="<="
+        OP_GT=">"
+        OP_GTEQ=">="
+
+        // arithmetic operators
         OP_ADD="+"
         OP_SUB="-"
         OP_MUL="*"
@@ -24,52 +47,44 @@
         OP_REM="%"
         OP_INC="++"
         OP_DEC="--"
-        OP_BITNOT="~"
-        OP_BITSHIFTR=">>"
-        OP_BITSHIFTR_L=">>>"
-        OP_BITSHIFTL="<<"
-        OP_BITAND="&"
-        OP_BITOR="|"
-        OP_EQ="="
-        OP_INCEQ="+="
-        OP_DECEQ="-="
-        OP_MULEQ="*="
-        OP_REMEQ="%="
-        OP_RSHIFTEQ=">>="
-        OP_RSHIFTLEQ=">>>="
-        OP_LSHIFTEQ="<<="
-        OP_BITANDEQ="&="
-        OP_BITOREQ="|="
-        OP_BITXOREQ="^="
-        OP_EQEQ="=="
-        OP_NEQ="!="
-        OP_LT="<"
-        OP_LTEQ="<="
-        OP_GT=">"
-        OP_GTEQ=">="
-        OP_NOT="!"
+
+        // boolean opeartors
         OP_OR="||"
         OP_AND="&&"
+        OP_NOT="!"
 
-        BRACKET_SQUAREL="["
-        BRACKET_SQUARER="]"
-        BRACKET_CURLYL="{"
-        BRACKET_CURLYR="}"
-        BRACKET_PARANL="("
-        BRACKET_PARANR=")"
+        // bitwise operators
+        OP_BITOR="|"
+        OP_BITXOR="^"
+        OP_BITNOT="~"
+        OP_BITAND="&"
+        OP_BITSHIFTR=">>"
+        OP_BITUSHIFTR=">>>"
+        OP_BITSHIFTL="<<"
 
+        // misc operators
         OP_DEFINED="defined"
         OP_SIZEOF="sizeof"
         OP_STATE="state"
         OP_TAGOF="tagof"
 
-        DOT="."
-        DOTDOTDOT="..."
-        COLON=":"
-        SEMICOLON=";"
-        QUESTION="?"
-        COMMA=","
+        // brackets
+        BRACKET_SQUARE_L="["
+        BRACKET_SQUARE_R="]"
+        BRACKET_CURLY_L="{"
+        BRACKET_CURLY_R="}"
+        BRACKET_PARAN_L="("
+        BRACKET_PARAN_R=")"
 
+        // general syntax operators
+        SYNTAX_ELLIPSIS="..."
+        SYNTAX_DOT="."
+        SYNTAX_COLON=":"
+        SYNTAX_SEMICOLON=";"
+        SYNTAX_QUESTION="?"
+        SYNTAX_COMMA=","
+
+        // keywords
         KEY_ASSERT="assert"
         KEY_BREAK="break"
         KEY_CASE="case"
@@ -87,6 +102,7 @@
         KEY_SWITCH="switch"
         KEY_WHILE="while"
 
+        // directives
         DIR_ASSERT="#assert"
         DIR_DEFINE="#define"
         DIR_ELSE="#else"
@@ -103,111 +119,247 @@
         DIR_TRYINC="#tryinclude"
         DIR_UNDEF="#undef"
 
-        OTHER_CONST="const"
-        OTHER_FORWARD="forward"
-        OTHER_NATIVE="native"
-        OTHER_NEW="new"
-        OTHER_OPERATOR="operator"
-        OTHER_PUBLIC="public"
-        OTHER_STATIC="static"
-        OTHER_STOCK="stock"
-        OTHER_DECL="decl"
+        // accessor modifiers
+        MOD_FORWARD="forward"
+        MOD_NATIVE="native"
+        MOD_PUBLIC="public"
+        MOD_STOCK="stock"
+        MOD_STATIC="static"
+        MOD_NEW="new"
+        MOD_CONST="const"
+        MOD_DECL="decl"
+        MOD_ENUM="enum"
+        MOD_STRUCT="struct"
 
-        BOOLEAN_TRUE="true"
-        BOOLEAN_FALSE="false"
+        // types
+        TYPE_FLOAT="regexp:\d+\.\d+"
+        TYPE_NUMBER="regexp:-?\d+"
+        TYPE_BOOLEAN="regexp:(true|false)"
+        TYPE_STRING="regexp:\"([^\"\\]|\\.)*\""
+        TYPE_CHARACTER="regexp:'\\?.'"
 
-        string="regexp:\"([^\"\\]|\\.)*\""
-        character="regexp:'.'"
-        number='regexp:\d+'
-        float='regexp:\d+\.\d+'
-        id='regexp:\p{Alpha}\w*'
-        line_comment="regexp://.*"
-        block_comment="regexp:/\*(.|\n)+?\*/"
+        // general
+        ID='regexp:\p{Alpha}\w*'
+        LINE_COMMENT="regexp://.*"
+        BLOCK_COMMENT="regexp:/\*(.|\n)+?\*/"
     ]
 
-    name(".*expr")='expression'
-    extends(".*expr")=expr
+    extends(".*(Expression|Literal)")="expression"
+    pin(".*Expression")=1
+    pin(".*(Statement|Directive)")=1
 }
 
-grammar ::= (func_decl | grammar_element) *
+sourcepawnFile ::= topLevelList
 
-private grammar_element ::= directive | expr SEMICOLON?
+private topLevelList ::= topLevel*
+private topLevel ::= topLevelDeclaration {recoverWhile=top_level_recover}
+private top_level_recover ::= !(SYNTAX_SEMICOLON | dirList | modList)
 
-directive ::= dir_include | dir_define | dir_undef | dir_pragma
+private topLevelDeclaration ::= directive
+                                | structDeclaration
+                                | functionDeclaration
+                                | enumDeclaration
+                                | globalVarDeclaration
 
-dir_include ::= DIR_INCLUDE OP_LT identifier OP_GT
-dir_define ::= DIR_DEFINE identifier literal_expr
-dir_undef ::= DIR_UNDEF identifier
-dir_pragma ::= DIR_PRAGMA identifier literal_expr
-// todo: all directives or just a catch-all ?
+/*
+ generic
+ */
 
-identifier ::= id
-float_literal ::= float
-number_literal ::= number
-boolean_literal ::= BOOLEAN_TRUE | BOOLEAN_FALSE
-character_literal ::= character
-string_literal ::= string
-literal_expr ::= float_literal | number_literal | boolean_literal | character_literal | string_literal
-modifier ::= OTHER_NATIVE | OTHER_PUBLIC | OTHER_STATIC | OTHER_STOCK | OTHER_FORWARD | OTHER_CONST
-type ::= '_' | id
-ref_expr ::= modifier? [type COLON] identifier array_bounds_expr?
-ref_list ::= ref_expr (COMMA ref_expr)*
+identifier ::= ID
+componentName ::= identifier
+typeTag ::= componentName SYNTAX_COLON
 
-// todo: proper operator precedence
-expr ::= func_call_expr |
-    decl_expr |
-    paran_expr |
-    single_expr | ternary_expr | bool_expr | prefix_expr | bit_expr | assign_expr | math_expr | rel_expr | incdec_expr |
-    for_expr | if_expr | else_expr |
-    return_expr |
-    ref_expr | literal_expr
+/*
+ operators
+ */
 
-expr_list ::= expr (COMMA expr)*
+// operator precedence from http://www.compuphase.com/pawn/Pawn_Language_Guide.pdf
+assignOperation ::= OP_MULEQ | OP_DIVEQ | OP_REMEQ | OP_INCEQ | OP_DECEQ
+                | OP_BITSHIFTREQ | OP_BITUSHIFTREQ | OP_BITSHIFTLEQ | OP_BITANDEQ | OP_BITXOREQ | OP_BITOREQ
+                | OP_EQ
+shiftOperator ::= OP_BITSHIFTL | OP_BITUSHIFTR | OP_BITSHIFTR
 
-assign_expr ::= expr assign_op expr { rightAssociative=true }
-assign_op ::= OP_EQ | OP_INCEQ | OP_DECEQ | OP_MULEQ | OP_REMEQ | OP_RSHIFTEQ | OP_RSHIFTLEQ | OP_LSHIFTEQ | OP_BITANDEQ | OP_BITOREQ | OP_BITXOREQ
+// todo: is there a way to automate this?
+private operatorList ::= OP_EQ | OP_INCEQ | OP_DECEQ | OP_MULEQ | OP_DIVEQ | OP_REMEQ | OP_BITSHIFTREQ | OP_BITUSHIFTREQ | OP_BITSHIFTLEQ | OP_BITANDEQ | OP_BITOREQ | OP_BITXOREQ | OP_EQEQ | OP_NOTEQ | OP_LT | OP_LTEQ | OP_GT | OP_GTEQ | OP_ADD | OP_SUB | OP_MUL | OP_DIV | OP_REM | OP_INC | OP_DEC | OP_OR | OP_AND | OP_NOT | OP_BITOR | OP_BITXOR | OP_BITNOT | OP_BITAND | OP_BITSHIFTR | OP_BITUSHIFTR | OP_BITSHIFTL | OP_DEFINED | OP_SIZEOF | OP_STATE | OP_TAGOF
+private bracketList ::= BRACKET_SQUARE_L | BRACKET_SQUARE_R | BRACKET_CURLY_L | BRACKET_CURLY_R | BRACKET_PARAN_L | BRACKET_PARAN_R
+private syntaxList ::= SYNTAX_ELLIPSIS | SYNTAX_DOT | SYNTAX_COLON | SYNTAX_SEMICOLON | SYNTAX_QUESTION | SYNTAX_COMMA
+private keyList ::= KEY_ASSERT | KEY_BREAK | KEY_CASE | KEY_CONTINUE | KEY_DEFAULT | KEY_DO | KEY_ELSE | KEY_EXIT | KEY_FOR | KEY_GOTO | KEY_IF | KEY_RETURN | KEY_SLEEP | KEY_STATE | KEY_SWITCH | KEY_WHILE
+private dirList ::= DIR_ASSERT | DIR_DEFINE | DIR_ELSE | DIR_ELSEIF | DIR_ENDIF | DIR_ENDINPUT | DIR_ERROR | DIR_FILE | DIR_IF | DIR_INCLUDE | DIR_LINE | DIR_PRAGMA | DIR_SECTION | DIR_TRYINC | DIR_UNDEF
+private modList ::= MOD_FORWARD | MOD_NATIVE | MOD_PUBLIC | MOD_STOCK | MOD_STATIC | MOD_NEW | MOD_CONST | MOD_DECL | MOD_ENUM | MOD_STRUCT
 
-decl_expr ::= (OTHER_NEW | OTHER_DECL | modifier) ref_list [OP_EQ (array_init_expr | expr)]
-array_bounds_expr ::= BRACKET_SQUAREL expr? BRACKET_SQUARER
-array_init_expr ::= BRACKET_CURLYL array_init_list* BRACKET_CURLYR
-array_init_list ::= array_init_value (COMMA array_init_value)*
-array_init_value ::= literal_expr | assign_expr
+/*
+ statement
+ */
 
-func_decl ::= modifier? ref_expr BRACKET_PARANL ref_list* BRACKET_PARANR block_expr
-block_expr ::= BRACKET_CURLYL grammar_element* BRACKET_CURLYR
-func_call_expr ::= !modifier ref_expr BRACKET_PARANL expr_list* BRACKET_PARANR !block_expr
+blockStatement ::= BRACKET_CURLY_L statementList? BRACKET_CURLY_R
+private statementList ::= (statement SYNTAX_SEMICOLON?)+ {recoverWhile=statement_recovery}
+private statement_recovery ::= !(BRACKET_CURLY_R | KEY_CASE | KEY_DEFAULT)
 
-math_expr ::= expr math_op expr
-math_op ::= OP_ADD | OP_SUB | OP_MUL | OP_DIV | OP_REM
+private statement ::= blockStatement | notBlockStatement
 
-return_expr ::= KEY_RETURN expr
+private notBlockStatement ::= localVarDeclaration
+                            | ifStatement
+                            | forStatement
+                            | whileStatement
+                            | doWhileStatement
+                            | returnStatement
+                            | breakStatement
+                            | continueStatement
+                            | switchStatement
+                            | expression
 
-for_expr ::= KEY_FOR BRACKET_PARANL expr SEMICOLON expr SEMICOLON expr BRACKET_PARANR block_expr
+/*
+ directives
+ */
 
-rel_expr ::= expr rel_op expr
-rel_op ::= OP_EQEQ | OP_NEQ | OP_LT | OP_LTEQ | OP_GT | OP_GTEQ
+directive ::= includeDirective
+            | defineDirective | undefineDirective
+            | pragmaDirective
+            | ifDirective | elseifDirective | elseDirective | endifDirective
 
-bool_expr ::= expr bool_op expr
-bool_op ::= OP_OR | OP_AND
+fileName ::= identifier
+includeDirective ::= DIR_INCLUDE OP_LT? fileName OP_GT?
+defineDirective ::= DIR_DEFINE identifier literalExpression? // todo: what about defining functions ?
+undefineDirective ::= DIR_UNDEF identifier
+pragmaDirective ::= DIR_PRAGMA identifier literalExpression
+ifDirective ::= DIR_IF expression
+elseifDirective ::= DIR_ELSEIF expression
+elseDirective ::= DIR_ELSE
+endifDirective ::= DIR_ENDIF
+// todo: more directives
 
-prefix_expr ::= prefix_op expr
-prefix_op ::= OP_NOT | OP_ADD | OP_SUB | OP_OP_BITNOT
+/*
+ functions
+ */
 
-single_expr ::= single_op expr
-single_op ::= OP_DEFINED | OP_SIZEOF | OP_STATE | OP_TAGOF
+functionDeclaration ::= funcModifierList? typeTag? componentName BRACKET_PARAN_L parameterList? BRACKET_PARAN_R functionCommonBody
+funcModifierList ::= MOD_FORWARD | MOD_NATIVE | MOD_PUBLIC | MOD_STOCK
+private functionCommonBody ::= blockStatement | returnStatement | expression
 
-bit_expr ::= expr bit_op expr
-bit_op ::= OP_BITSHIFTR | OP_BITSHIFTR_L | OP_BITSHIFTL | OP_BITAND | OP_BITOR
+/*
+ parameter
+ */
 
-incdec_expr ::= pre_inc_expr | post_inc_expr | pre_dec_expr | post_dec_expr
-pre_inc_expr ::= OP_INC ref_expr;
-post_inc_expr ::= ref_expr OP_INC;
-pre_dec_expr ::= OP_DEC ref_expr;
-post_dec_expr ::= ref_expr OP_DEC;
+parameter ::= MOD_CONST? typeTag? componentName varInit?
+parameterList ::= parameter (SYNTAX_COMMA parameter)* {recoverWhile=parameterListRecovery}
+private parameterListRecovery ::= !BRACKET_PARAN_R
 
-if_expr ::= KEY_IF BRACKET_PARANL expr BRACKET_PARANR block_expr
-else_expr ::= KEY_ELSE block_expr
+/*
+ variables
+ */
 
-paran_expr ::= BRACKET_PARANL expr BRACKET_PARANR
+initBlockStatement ::= BRACKET_CURLY_L initStatementList? BRACKET_CURLY_R
+private initStatementList ::= (statement SYNTAX_COMMA?)+ {recoverWhile=init_statement_recovery}
+private init_statement_recovery ::= !(BRACKET_CURLY_R | KEY_CASE | KEY_DEFAULT)
 
-ternary_expr ::= expr QUESTION expr COLON expr
+varInit ::= OP_EQ (initBlockStatement | statement) {pin=1}
+
+localVarModifier ::= MOD_STATIC | MOD_NEW | MOD_CONST | MOD_DECL
+localVarDeclaration ::= localVarModifier varDeclarationPartList {pin=1}
+
+globalVarModifier ::= MOD_PUBLIC | MOD_STATIC | MOD_NEW | MOD_CONST | MOD_DECL
+globalVarDeclaration ::= globalVarModifier varDeclarationPartList SYNTAX_SEMICOLON? {pin=1}
+
+private varDeclarationPartList ::= varDeclarationPart (SYNTAX_COMMA varDeclarationPart)* varInit? {recoverWhile=var_declaration_part_recover}
+varDeclarationPart ::= typeTag? componentName arrayAccessExpression?
+private var_declaration_part_recover ::= !(SYNTAX_SEMICOLON | BRACKET_CURLY_R | SYNTAX_COMMA | modList)
+
+enumDeclaration ::= MOD_ENUM componentName BRACKET_CURLY_L enumBlock BRACKET_CURLY_R SYNTAX_SEMICOLON?
+enumBlock ::= enumValueDeclaration*
+enumValueDeclaration ::= componentName OP_EQ literalExpression SYNTAX_COMMA?
+
+structDeclaration ::= MOD_STRUCT componentName BRACKET_CURLY_L structBlock BRACKET_CURLY_R SYNTAX_SEMICOLON? {pin=1}
+structBlock ::= structValueDeclaration*
+structValueDeclaration ::= MOD_CONST typeTag? componentName arrayAccessExpression? SYNTAX_COMMA?
+
+/*
+ statements
+ */
+
+returnStatement ::= KEY_RETURN expression?
+ifStatement ::= KEY_IF BRACKET_PARAN_L expression BRACKET_PARAN_R statement* [KEY_ELSE statement*]
+forStatement ::= KEY_FOR BRACKET_PARAN_L notBlockStatement? SYNTAX_SEMICOLON notBlockStatement? SYNTAX_SEMICOLON notBlockStatement? BRACKET_PARAN_R statement
+whileStatement ::= KEY_WHILE BRACKET_PARAN_L expression BRACKET_PARAN_R statement
+doWhileStatement ::= KEY_DO BRACKET_PARAN_L statement BRACKET_PARAN_R KEY_WHILE BRACKET_PARAN_L expression BRACKET_PARAN_R SYNTAX_SEMICOLON
+breakStatement ::= KEY_BREAK
+continueStatement ::= KEY_CONTINUE
+
+switchStatement ::= KEY_SWITCH BRACKET_PARAN_L expression BRACKET_PARAN_R switchBlock
+switchBlock ::= BRACKET_CURLY_L switchCase* defaultCase? BRACKET_CURLY_R {pin=1}
+switchCaseBlock ::= statementList
+switchCase ::= KEY_CASE literalExpression (SYNTAX_COMMA literalExpression)* SYNTAX_COLON switchCaseBlock? {pin=1 recoverWhile=switch_case_recover}
+private switch_case_recover ::= !(KEY_CASE | KEY_DEFAULT | BRACKET_CURLY_R | identifier)
+defaultCase::= KEY_DEFAULT SYNTAX_COLON switchCaseBlock? {pin=1}
+
+/*
+ expression
+ */
+
+// expression precedence from http://www.compuphase.com/pawn/Pawn_Language_Guide.pdf
+
+expressionList ::= expression (SYNTAX_COMMA expression)* {recoverWhile=expression_list_recover}
+private expression_list_recover ::= !(BRACKET_PARAN_R | BRACKET_SQUARE_R)
+
+expression ::= assignExpressionWrapper {recoverWhile=expression_recover}
+private expression_recover ::= !(operatorList | bracketList | syntaxList | keyList | dirList | modList)
+
+private assignExpressionWrapper ::= ternaryExpressionWrapper assignExpression*
+left assignExpression ::= assignOperation ternaryExpressionWrapper {pin=1 extends=expression}
+
+private ternaryExpressionWrapper ::= logicOrExpressionWrapper ternaryExpression?
+left ternaryExpression ::= SYNTAX_QUESTION expression SYNTAX_COLON ternaryExpressionWrapper
+
+private logicOrExpressionWrapper ::= logicAndExpressionWrapper logicOrExpression*
+left logicOrExpression ::= OP_OR logicAndExpressionWrapper
+
+private logicAndExpressionWrapper ::= equalityExpressionWrapper logicAndExpression*
+left logicAndExpression ::= OP_AND equalityExpressionWrapper
+
+private equalityExpressionWrapper ::= comparisonExpressionWrapper equalityExpression*
+left equalityExpression ::= (OP_NOTEQ | OP_EQEQ) comparisonExpressionWrapper
+
+private comparisonExpressionWrapper ::= bitwiseOrExpressionWrapper compareExpression*
+left compareExpression ::= (OP_GTEQ | OP_GT | OP_LTEQ | OP_LT) bitwiseOrExpressionWrapper
+
+private bitwiseOrExpressionWrapper ::= bitwiseXOrExpressionWrapper bitwiseOrExpression*
+left bitwiseOrExpression ::= OP_BITOR bitwiseXOrExpressionWrapper
+
+private bitwiseXOrExpressionWrapper ::= bitwiseAndExpressionWrapper bitwiseXOrExpression*
+left bitwiseXOrExpression ::= OP_BITXOR bitwiseAndExpressionWrapper
+
+private bitwiseAndExpressionWrapper ::= shiftExpressionWrapper bitwiseAndExpression*
+left bitwiseAndExpression ::= (OP_BITSHIFTL | OP_BITUSHIFTR | OP_BITSHIFTR) shiftExpressionWrapper
+
+private shiftExpressionWrapper ::= additiveExpressionWrapper shiftExpression*
+left shiftExpression ::= shiftOperator additiveExpressionWrapper
+
+private additiveExpressionWrapper ::= multiplicativeExpressionWrapper additiveExpression*
+left additiveExpression ::= (OP_ADD | OP_SUB) multiplicativeExpressionWrapper
+
+private multiplicativeExpressionWrapper ::= prefixExpression multiplicativeExpression*
+left multiplicativeExpression ::= (OP_MUL | OP_DIV | OP_REM) (prefixExpression | suffixExpressionWrapper)
+
+// todo: not including SYNTX_COLON, include as a tagged value, is this ok?
+prefixExpression ::= (OP_TAGOF | OP_STATE | OP_SIZEOF | OP_DEFINED | OP_DEC | OP_INC | OP_SUB | OP_BITNOT | OP_NOT) prefixExpression | suffixExpressionWrapper
+
+private suffixExpressionWrapper ::= value suffixExpression?
+left suffixExpression ::= (OP_DEC | OP_INC)
+
+private value ::= literalExpression
+                | SYTNAX_ELLIPSIS
+                | arrayLiteral
+                | parenthesizedExpression
+                | callOrArrayAccess
+                | referenceExpression
+
+// todo: make these individual expressions ?
+literalExpression ::= TYPE_FLOAT | TYPE_NUMBER | TYPE_BOOLEAN | TYPE_STRING | TYPE_CHARACTER
+
+arrayLiteral ::= BRACKET_CURLY_L expressionList? BRACKET_CURLY_R
+
+parenthesizedExpression ::= BRACKET_PARAN_L (expression | statement) BRACKET_PARAN_R
+
+referenceExpression ::= identifier
+private callOrArrayAccess ::= typeTag? referenceExpression (callExpression | arrayAccessExpression)
+left callExpression ::= BRACKET_PARAN_L expressionList? BRACKET_PARAN_R
+left arrayAccessExpression ::= BRACKET_SQUARE_L expression? BRACKET_SQUARE_R
