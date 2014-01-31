@@ -282,13 +282,15 @@ continueStatement ::= KEY_CONTINUE
 
 forStatement ::= KEY_FOR BRACKET_PARAN_L forInitList? SYNTAX_SEMICOLON expression? SYNTAX_SEMICOLON expression? BRACKET_PARAN_R functionBlock
 forInitList ::= forInitExpression (SYNTAX_COMMA forInitExpression)*
-forInitExpression ::= assignExpression | localVarDeclaration
+forInitExpression ::= localVarDeclaration | (referenceExpression assignExpression)
 
 switchStatement ::= KEY_SWITCH BRACKET_PARAN_L expression BRACKET_PARAN_R switchBlock
 switchBlock ::= BRACKET_CURLY_L switchCase* defaultCase? BRACKET_CURLY_R {pin=1}
-switchCase ::= KEY_CASE literalExpression (SYNTAX_COMMA literalExpression)* SYNTAX_COLON statement? {pin=1 recoverWhile=switch_case_recover}
+switchCase ::= KEY_CASE literalExpression (SYNTAX_COMMA literalExpression)* SYNTAX_COLON switchBlockStatement? {pin=1 recoverWhile=switch_case_recover}
 private switch_case_recover ::= !(KEY_CASE | KEY_DEFAULT | BRACKET_CURLY_R | identifier)
-defaultCase::= KEY_DEFAULT SYNTAX_COLON statement? {pin=1}
+defaultCase::= KEY_DEFAULT SYNTAX_COLON switchBlockStatement? {pin=1}
+
+private switchBlockStatement ::= BRACKET_CURLY_L? (statement SYNTAX_SEMICOLON?)* BRACKET_CURLY_R?
 
 /*
     expression
@@ -306,8 +308,8 @@ left assignExpression ::= assignmentOperator iteratorExpressionWrapper
 private iteratorExpressionWrapper ::= ternaryExpressionWrapper iteratorExpression?
 left iteratorExpression ::= SYNTAX_ELLIPSIS ternaryExpressionWrapper
 
-private ternaryExpressionWrapper ::= logicOrExpressionWrapper ternaryExpression?
-left ternaryExpression ::= SYNTAX_QUESTION expression &SYNTAX_COLON ternaryExpressionWrapper
+private ternaryExpressionWrapper ::= logicOrExpressionWrapper ternaryExpression*
+left ternaryExpression ::= SYNTAX_QUESTION expression SYNTAX_COLON ternaryExpressionWrapper
 
 private logicOrExpressionWrapper ::= logicAndExpressionWrapper logicOrExpression*
 left logicOrExpression ::= OP_OR logicAndExpressionWrapper
@@ -353,7 +355,7 @@ private value ::= literalExpression
 
 miscPrefixExpression ::= miscOperator BRACKET_PARAN_L? expression BRACKET_PARAN_R?
 
-private callOrArrayAccess ::= tag? referenceExpression (callExpression | arrayAccessExpression)
+private callOrArrayAccess ::= tag? referenceExpression (callExpression | arrayAccessExpression+)
 left callExpression ::= BRACKET_PARAN_L expressionList? BRACKET_PARAN_R
 left arrayAccessExpression ::= BRACKET_SQUARE_L expression? BRACKET_SQUARE_R
 
