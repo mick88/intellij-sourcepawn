@@ -302,11 +302,8 @@ private expression_list_recover ::= !(BRACKET_PARAN_R | BRACKET_SQUARE_R | BRACK
 expression ::= assignExpressionWrapper {recoverWhile=expression_recover}
 private expression_recover ::= !(operatorList | bracketList | syntaxList | keywordList | directiveList | otherList | constantList)
 
-private assignExpressionWrapper ::= iteratorExpressionWrapper assignExpression*
-left assignExpression ::= assignmentOperator iteratorExpressionWrapper
-
-private iteratorExpressionWrapper ::= ternaryExpressionWrapper iteratorExpression?
-left iteratorExpression ::= SYNTAX_ELLIPSIS ternaryExpressionWrapper
+private assignExpressionWrapper ::= ternaryExpressionWrapper assignExpression*
+left assignExpression ::= assignmentOperator ternaryExpressionWrapper
 
 private ternaryExpressionWrapper ::= logicOrExpressionWrapper ternaryExpression*
 left ternaryExpression ::= SYNTAX_QUESTION expression SYNTAX_COLON ternaryExpressionWrapper
@@ -361,6 +358,6 @@ left arrayAccessExpression ::= BRACKET_SQUARE_L expression? BRACKET_SQUARE_R
 
 parenthesizedExpression ::= BRACKET_PARAN_L expression BRACKET_PARAN_R
 
-literalExpression ::= constantList | arrayLiteral
+literalExpression ::= SYNTAX_ELLIPSIS | constantList | arrayLiteral
 
 arrayLiteral ::= (BRACKET_SQUARE_L | BRACKET_CURLY_L) expressionList? (BRACKET_SQUARE_R | BRACKET_CURLY_R)
