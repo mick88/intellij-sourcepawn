@@ -26,6 +26,7 @@
         <!-- Add your extensions here -->
         <fileTypeFactory implementation="com.sourcepawn.SourcePawnFileTypeFactory"/>
         <lang.parserDefinition language="SourcePawn" implementationClass="com.sourcepawn.SourcePawnParserDefinition"/>
+		<lang.syntaxHighlighterFactory key="SourcePawn" implementationClass="com.sourcepawn.SourcePawnHighlighterFactory"/>
     </extensions>
 
     <application-components>
