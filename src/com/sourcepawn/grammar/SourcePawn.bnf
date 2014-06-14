@@ -153,11 +153,7 @@
     pin(".*(Directive|Statement)")=1
 }
 
-sourcepawnFile ::= topLevelList
-
-private topLevelList ::= topLevel*
-private topLevel ::= topLevelDeclaration {recoverWhile=top_level_recover}
-private top_level_recover ::= !(SYNTAX_SEMICOLON | directiveList | otherList | identifier) // identifier should cover a tag
+sourcepawnFile ::= topLevelDeclaration*
 
 private topLevelDeclaration ::= directiveDeclaration
                                 | structDeclaration
@@ -180,9 +176,8 @@ localVarDeclaration ::= localVarModifier varDeclarationPartList {pin=1} // todo:
 globalVarModifier ::= OTHER_PUBLIC | OTHER_STATIC | OTHER_NEW | OTHER_CONST | OTHER_DECL
 globalVarDeclaration ::= globalVarModifier varDeclarationPartList SYNTAX_SEMICOLON? {pin=1} // todo: is a pin needed?
 
-private varDeclarationPartList ::= varDeclarationPart (SYNTAX_COMMA varDeclarationPart)* varInit? {recoverWhile=var_declaration_part_recover}
+private varDeclarationPartList ::= varDeclarationPart (SYNTAX_COMMA varDeclarationPart)* varInit?
 varDeclarationPart ::= qualifiedIdentifier (BRACKET_SQUARE_L [sizeofExpression | literalExpression | identifier] BRACKET_SQUARE_R)*
-private var_declaration_part_recover ::= !(SYNTAX_SEMICOLON | BRACKET_CURLY_R | SYNTAX_COMMA | otherList)
 
 sizeofExpression ::= OP_SIZEOF BRACKET_PARAN_L identifier (BRACKET_SQUARE_L BRACKET_SQUARE_R)* BRACKET_PARAN_R
 
@@ -202,17 +197,17 @@ equalityOperator ::= OP_EQ_EQ | OP_NOT_EQ
 relationalOperator ::= OP_LT | OP_LT_EQ | OP_GT | OP_GT_EQ
 arithmeticAdditiveOperator ::= OP_ADD | OP_SUB
 arithmeticMultiplicativeOperator ::= OP_MUL | OP_DIV | OP_REM | OP_INC | OP_DEC
-logicalOperator ::= OP_OR | OP_AND | OP_NOT
+//logicalOperator ::= OP_OR | OP_AND | OP_NOT
 bitwiseShiftOperator ::= OP_BITSHIFTR | OP_BITUSHIFTR | OP_BITSHIFTL
-bitwiseOperator ::= OP_BITOR | OP_BITXOR | OP_BITNOT | OP_BITAND
+//bitwiseOperator ::= OP_BITOR | OP_BITXOR | OP_BITNOT | OP_BITAND
 miscOperator ::= OP_DEFINED | OP_SIZEOF | OP_STATE | OP_TAGOF
-operatorList ::= assignmentOperator | equalityOperator | relationalOperator | arithmeticAdditiveOperator | arithmeticMultiplicativeOperator | logicalOperator | bitwiseOperator | bitwiseShiftOperator | miscOperator
+//operatorList ::= assignmentOperator | equalityOperator | relationalOperator | arithmeticAdditiveOperator | arithmeticMultiplicativeOperator | logicalOperator | bitwiseOperator | bitwiseShiftOperator | miscOperator
 
-bracketList ::= BRACKET_SQUARE_L | BRACKET_SQUARE_R | BRACKET_CURLY_L | BRACKET_CURLY_R | BRACKET_PARAN_L | BRACKET_PARAN_R
-syntaxList ::= SYNTAX_ELLIPSIS | SYNTAX_DOT | SYNTAX_QUESTION | SYNTAX_COMMA // | SYNTAX_COLON | SYNTAX_SEMICOLON
-keywordList ::= KEY_ASSERT | KEY_BREAK | KEY_CASE | KEY_CONTINUE | KEY_DEFAULT | KEY_DO | KEY_ELSE | KEY_EXIT | KEY_FOR | KEY_GOTO | KEY_IF | KEY_RETURN | KEY_SLEEP | KEY_STATE | KEY_SWITCH | KEY_WHILE
-directiveList ::= DIR_ASSERT | DIR_DEFINE | DIR_ELSE | DIR_ELSEIF | DIR_ENDIF | DIR_ENDINPUT | DIR_ERROR | DIR_FILE | DIR_IF | DIR_INCLUDE | DIR_LINE | DIR_PRAGMA | DIR_SECTION | DIR_TRYINC | DIR_UNDEF
-otherList ::= OTHER_FORWARD | OTHER_NATIVE | OTHER_PUBLIC | OTHER_STOCK | OTHER_CONST | OTHER_STATIC | OTHER_NEW | OTHER_DECL | OTHER_ENUM | OTHER_STRUCT
+//bracketList ::= BRACKET_SQUARE_L | BRACKET_SQUARE_R | BRACKET_CURLY_L | BRACKET_CURLY_R | BRACKET_PARAN_L | BRACKET_PARAN_R
+//syntaxList ::= SYNTAX_ELLIPSIS | SYNTAX_DOT | SYNTAX_QUESTION | SYNTAX_COMMA | SYNTAX_COLON | SYNTAX_SEMICOLON
+//keywordList ::= KEY_ASSERT | KEY_BREAK | KEY_CASE | KEY_CONTINUE | KEY_DEFAULT | KEY_DO | KEY_ELSE | KEY_EXIT | KEY_FOR | KEY_GOTO | KEY_IF | KEY_RETURN | KEY_SLEEP | KEY_STATE | KEY_SWITCH | KEY_WHILE
+//directiveList ::= DIR_ASSERT | DIR_DEFINE | DIR_ELSE | DIR_ELSEIF | DIR_ENDIF | DIR_ENDINPUT | DIR_ERROR | DIR_FILE | DIR_IF | DIR_INCLUDE | DIR_LINE | DIR_PRAGMA | DIR_SECTION | DIR_TRYINC | DIR_UNDEF
+//otherList ::= OTHER_FORWARD | OTHER_NATIVE | OTHER_PUBLIC | OTHER_STOCK | OTHER_CONST | OTHER_STATIC | OTHER_NEW | OTHER_DECL | OTHER_ENUM | OTHER_STRUCT
 constantList ::= CONSTANT_HEX | CONSTANT_FLOAT | CONSTANT_INTEGER | CONSTANT_BOOLEAN | CONSTANT_STRING | CONSTANT_CHARACTER
 
 /*
@@ -247,9 +242,8 @@ structList ::= (localVarDeclaration SYNTAX_COMMA?)+
  */
 
 enumDeclaration ::= OTHER_ENUM identifier BRACKET_CURLY_L enumList BRACKET_CURLY_R SYNTAX_SEMICOLON? {pin=1}
-enumList ::= enumListItem (SYNTAX_COMMA TAG? enumListItem)* {recoverWhile=enum_list_recover}
+enumList ::= enumListItem (SYNTAX_COMMA TAG? enumListItem)*
 enumListItem ::= qualifiedIdentifier [BRACKET_SQUARE_L literalExpression? BRACKET_SQUARE_R | OP_EQ literalExpression]
-private enum_list_recover ::= !(BRACKET_CURLY_R)
 
 /*
     functions
@@ -260,8 +254,7 @@ functionDeclaration ::= (bareFunctionDeclaration | normalFunctionDeclaration) SY
 private normalFunctionDeclaration ::= [OTHER_PUBLIC | OTHER_STOCK] qualifiedIdentifier BRACKET_PARAN_L functionParameterList? BRACKET_PARAN_R functionBlock {pin=3}
 private bareFunctionDeclaration ::= (OTHER_FORWARD | OTHER_NATIVE) qualifiedIdentifier BRACKET_PARAN_L functionParameterList? BRACKET_PARAN_R {pin=1}
 
-functionParameterList ::= functionParameter* {recoverWhile=parameter_list_recovery}
-parameter_list_recovery ::= !BRACKET_PARAN_R
+functionParameterList ::= functionParameter*
 functionParameter ::= [OTHER_CONST | OP_BITAND] TAG? (SYNTAX_ELLIPSIS | identifier (BRACKET_SQUARE_L expression? BRACKET_SQUARE_R)* varInit?) SYNTAX_COMMA?
 
 functionBlock ::= blockStatement | statement
@@ -298,8 +291,7 @@ forInitExpression ::= localVarDeclaration | (identifier assignExpression)
 
 switchStatement ::= KEY_SWITCH BRACKET_PARAN_L expression BRACKET_PARAN_R switchBlock
 switchBlock ::= BRACKET_CURLY_L switchCase* defaultCase? BRACKET_CURLY_R {pin=1}
-switchCase ::= KEY_CASE literalExpression (SYNTAX_COMMA literalExpression)* SYNTAX_COLON switchBlockStatement? {pin=1 recoverWhile=switch_case_recover}
-private switch_case_recover ::= !(KEY_CASE | KEY_DEFAULT | BRACKET_CURLY_R | identifier)
+switchCase ::= KEY_CASE literalExpression (SYNTAX_COMMA literalExpression)* SYNTAX_COLON switchBlockStatement? {pin=1}
 defaultCase::= KEY_DEFAULT SYNTAX_COLON switchBlockStatement? {pin=1}
 
 private switchBlockStatement ::= BRACKET_CURLY_L? (statement SYNTAX_SEMICOLON?)* BRACKET_CURLY_R?
@@ -308,11 +300,9 @@ private switchBlockStatement ::= BRACKET_CURLY_L? (statement SYNTAX_SEMICOLON?)*
     expression
  */
 
-expressionList ::= expression (SYNTAX_COMMA expression)* {recoverWhile=expression_list_recover}
-private expression_list_recover ::= !(BRACKET_PARAN_R | BRACKET_SQUARE_R | BRACKET_CURLY_R)
+expressionList ::= expression (SYNTAX_COMMA expression)*
 
-expression ::= assignExpressionWrapper {recoverWhile=expression_recover}
-private expression_recover ::= !(operatorList | bracketList | syntaxList | keywordList | directiveList | otherList | constantList)
+expression ::= assignExpressionWrapper
 
 private assignExpressionWrapper ::= ternaryExpressionWrapper assignExpression*
 left assignExpression ::= assignmentOperator ternaryExpressionWrapper
