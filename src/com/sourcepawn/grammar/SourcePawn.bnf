@@ -122,6 +122,8 @@
         DIR_UNDEF="#undef"
 
         // other stuff
+        OTHER_FUNCTAG="functag"
+        OTHER_FUNCENUM="funcenum"
         OTHER_FORWARD="forward"
         OTHER_NATIVE="native"
         OTHER_PUBLIC="public"
@@ -250,15 +252,21 @@ enumList ::= <<optional_comma_list expression>>
     functions
  */
 
-functionDeclaration ::= (bareFunctionDeclaration | normalFunctionDeclaration) SYNTAX_SEMICOLON?
+functionDeclaration ::= (funcenumDeclaration | functagDeclaration | bareFunctionDeclaration | normalFunctionDeclaration) SYNTAX_SEMICOLON?
 
 private normalFunctionDeclaration ::= [OTHER_PUBLIC | OTHER_STOCK] qualifiedIdentifier BRACKET_PAREN_L functionParameterList? BRACKET_PAREN_R functionBlock {pin=3}
 private bareFunctionDeclaration ::= (OTHER_FORWARD | OTHER_NATIVE) qualifiedIdentifier BRACKET_PAREN_L functionParameterList? BRACKET_PAREN_R {pin=1}
+
+private functagDeclaration ::=  OTHER_FUNCTAG (OTHER_PUBLIC TAG? identifier | identifier TAG? OTHER_PUBLIC) BRACKET_PAREN_L functionParameterList? BRACKET_PAREN_R {pin=1}
 
 functionParameterList ::= <<comma_list functionParameter>>
 functionParameter ::= [OTHER_CONST | OP_BITAND] TAG? (SYNTAX_ELLIPSIS | identifier (BRACKET_SQUARE_L expression? BRACKET_SQUARE_R)* varInit?)
 
 functionBlock ::= blockStatement | statement
+
+funcenumDeclaration ::= OTHER_FUNCENUM identifier BRACKET_CURLY_L funcenumBlock BRACKET_CURLY_R {pin=1}
+funcenumBlock ::= <<optional_comma_list funcenumBlockDeclaration>>
+funcenumBlockDeclaration ::= TAG? OTHER_PUBLIC BRACKET_PAREN_L functionParameterList? BRACKET_PAREN_R {pin=2}
 
 /*
     statements
