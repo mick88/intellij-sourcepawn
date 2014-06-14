@@ -167,7 +167,7 @@ private topLevelDeclaration ::= directiveDeclaration
 
 varInit ::= OP_EQ (expression | varBlock)
 
-varBlock ::= BRACKET_CURLY_L (varBlockStatement SYNTAX_COMMA?)+ BRACKET_CURLY_R
+varBlock ::= BRACKET_CURLY_L <<comma_list varBlockStatement>> BRACKET_CURLY_R
 varBlockStatement ::= literalExpression | identifier OP_EQ (identifier | literalExpression)
 
 localVarModifier ::= OTHER_STATIC | OTHER_NEW | OTHER_CONST | OTHER_DECL
@@ -176,7 +176,7 @@ localVarDeclaration ::= localVarModifier varDeclarationPartList {pin=1} // todo:
 globalVarModifier ::= OTHER_PUBLIC | OTHER_STATIC | OTHER_NEW | OTHER_CONST | OTHER_DECL
 globalVarDeclaration ::= globalVarModifier varDeclarationPartList SYNTAX_SEMICOLON? {pin=1} // todo: is a pin needed?
 
-private varDeclarationPartList ::= varDeclarationPart (SYNTAX_COMMA varDeclarationPart)* varInit?
+private varDeclarationPartList ::= <<comma_list varDeclarationPart>> varInit?
 varDeclarationPart ::= qualifiedIdentifier (BRACKET_SQUARE_L [sizeofExpression | literalExpression | identifier] BRACKET_SQUARE_R)*
 
 sizeofExpression ::= OP_SIZEOF BRACKET_PARAN_L identifier (BRACKET_SQUARE_L BRACKET_SQUARE_R)* BRACKET_PARAN_R
@@ -187,6 +187,9 @@ sizeofExpression ::= OP_SIZEOF BRACKET_PARAN_L identifier (BRACKET_SQUARE_L BRAC
 
 identifier ::= ID
 qualifiedIdentifier ::= TAG? identifier
+
+meta comma_list ::= <<param>> (SYNTAX_COMMA <<param>>)*
+meta optional_comma_list ::= <<param>> (SYNTAX_COMMA <<param>>)* SYNTAX_COMMA?
 
 /*
     lists and junk
@@ -235,14 +238,14 @@ endInputDirective ::= DIR_ENDINPUT
  */
 
 structDeclaration ::= OTHER_STRUCT identifier BRACKET_CURLY_L structList BRACKET_CURLY_R SYNTAX_SEMICOLON? {pin=1}
-structList ::= (localVarDeclaration SYNTAX_COMMA?)+
+structList ::= <<optional_comma_list localVarDeclaration>>
 
 /*
     enum
  */
 
-enumDeclaration ::= OTHER_ENUM identifier BRACKET_CURLY_L enumList BRACKET_CURLY_R SYNTAX_SEMICOLON? {pin=1}
-enumList ::= enumListItem (SYNTAX_COMMA TAG? enumListItem)*
+enumDeclaration ::= OTHER_ENUM identifier BRACKET_CURLY_L enumList BRACKET_CURLY_R SYNTAX_SEMICOLON {pin=1}
+enumList ::= <<optional_comma_list enumListItem>>
 enumListItem ::= qualifiedIdentifier [BRACKET_SQUARE_L literalExpression? BRACKET_SQUARE_R | OP_EQ literalExpression]
 
 /*
@@ -254,8 +257,8 @@ functionDeclaration ::= (bareFunctionDeclaration | normalFunctionDeclaration) SY
 private normalFunctionDeclaration ::= [OTHER_PUBLIC | OTHER_STOCK] qualifiedIdentifier BRACKET_PARAN_L functionParameterList? BRACKET_PARAN_R functionBlock {pin=3}
 private bareFunctionDeclaration ::= (OTHER_FORWARD | OTHER_NATIVE) qualifiedIdentifier BRACKET_PARAN_L functionParameterList? BRACKET_PARAN_R {pin=1}
 
-functionParameterList ::= functionParameter*
-functionParameter ::= [OTHER_CONST | OP_BITAND] TAG? (SYNTAX_ELLIPSIS | identifier (BRACKET_SQUARE_L expression? BRACKET_SQUARE_R)* varInit?) SYNTAX_COMMA?
+functionParameterList ::= <<comma_list functionParameter>>
+functionParameter ::= [OTHER_CONST | OP_BITAND] TAG? (SYNTAX_ELLIPSIS | identifier (BRACKET_SQUARE_L expression? BRACKET_SQUARE_R)* varInit?)
 
 functionBlock ::= blockStatement | statement
 
@@ -286,12 +289,12 @@ breakStatement ::= KEY_BREAK
 continueStatement ::= KEY_CONTINUE
 
 forStatement ::= KEY_FOR BRACKET_PARAN_L forInitList? SYNTAX_SEMICOLON expression? SYNTAX_SEMICOLON expression? BRACKET_PARAN_R functionBlock
-forInitList ::= forInitExpression (SYNTAX_COMMA forInitExpression)*
+forInitList ::= <<comma_list forInitExpression>>
 forInitExpression ::= localVarDeclaration | (identifier assignExpression)
 
 switchStatement ::= KEY_SWITCH BRACKET_PARAN_L expression BRACKET_PARAN_R switchBlock
 switchBlock ::= BRACKET_CURLY_L switchCase* defaultCase? BRACKET_CURLY_R {pin=1}
-switchCase ::= KEY_CASE literalExpression (SYNTAX_COMMA literalExpression)* SYNTAX_COLON switchBlockStatement? {pin=1}
+switchCase ::= KEY_CASE <<comma_list literalExpression>> SYNTAX_COLON switchBlockStatement? {pin=1}
 defaultCase::= KEY_DEFAULT SYNTAX_COLON switchBlockStatement? {pin=1}
 
 private switchBlockStatement ::= BRACKET_CURLY_L? (statement SYNTAX_SEMICOLON?)* BRACKET_CURLY_R?
@@ -300,7 +303,7 @@ private switchBlockStatement ::= BRACKET_CURLY_L? (statement SYNTAX_SEMICOLON?)*
     expression
  */
 
-expressionList ::= expression (SYNTAX_COMMA expression)*
+expressionList ::= <<comma_list expression>>
 
 expression ::= assignExpressionWrapper
 
