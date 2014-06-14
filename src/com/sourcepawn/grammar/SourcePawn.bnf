@@ -244,7 +244,7 @@ structList ::= <<optional_comma_list localVarDeclaration>>
     enum
  */
 
-enumDeclaration ::= OTHER_ENUM identifier BRACKET_CURLY_L enumList BRACKET_CURLY_R SYNTAX_SEMICOLON {pin=1}
+enumDeclaration ::= OTHER_ENUM identifier BRACKET_CURLY_L enumList BRACKET_CURLY_R SYNTAX_SEMICOLON? {pin=1}
 enumList ::= <<optional_comma_list enumListItem>>
 enumListItem ::= qualifiedIdentifier [BRACKET_SQUARE_L literalExpression? BRACKET_SQUARE_R | OP_EQ literalExpression]
 
