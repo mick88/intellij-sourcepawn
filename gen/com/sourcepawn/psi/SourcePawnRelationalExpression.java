@@ -14,9 +14,15 @@ public interface SourcePawnRelationalExpression extends SourcePawnExpression {
   List<SourcePawnIdentifier> getIdentifierList();
 
   @Nullable
-  SourcePawnRelationalOperator getRelationalOperator();
+  SourcePawnPrefixExpressionOperator getPrefixExpressionOperator();
 
   @Nullable
-  PsiElement getTag();
+  SourcePawnRelationalOperator getRelationalOperator();
+
+  @NotNull
+  List<SourcePawnSuffixExpressionOperator> getSuffixExpressionOperatorList();
+
+  @Nullable
+  SourcePawnTag getTag();
 
 }

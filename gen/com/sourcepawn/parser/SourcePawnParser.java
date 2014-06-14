@@ -155,11 +155,11 @@ public class SourcePawnParser implements PsiParser {
     else if (root_ == LITERAL_EXPRESSION) {
       result_ = literalExpression(builder_, 0);
     }
-    else if (root_ == LOCAL_VAR_DECLARATION) {
-      result_ = localVarDeclaration(builder_, 0);
-    }
     else if (root_ == LOCAL_VAR_MODIFIER) {
       result_ = localVarModifier(builder_, 0);
+    }
+    else if (root_ == LOCAL_VAR_STATEMENT) {
+      result_ = localVarStatement(builder_, 0);
     }
     else if (root_ == LOGIC_AND_EXPRESSION) {
       result_ = logicAndExpression(builder_, 0);
@@ -182,8 +182,8 @@ public class SourcePawnParser implements PsiParser {
     else if (root_ == PRAGMA_DIRECTIVE) {
       result_ = pragmaDirective(builder_, 0);
     }
-    else if (root_ == PREFIX_OPERATOR_EXPRESSION) {
-      result_ = prefixOperatorExpression(builder_, 0);
+    else if (root_ == PREFIX_EXPRESSION_OPERATOR) {
+      result_ = prefixExpressionOperator(builder_, 0);
     }
     else if (root_ == QUALIFIED_IDENTIFIER) {
       result_ = qualifiedIdentifier(builder_, 0);
@@ -206,8 +206,8 @@ public class SourcePawnParser implements PsiParser {
     else if (root_ == STRUCT_LIST) {
       result_ = structList(builder_, 0);
     }
-    else if (root_ == SUFFIX_EXPRESSION) {
-      result_ = suffixExpression(builder_, 0);
+    else if (root_ == SUFFIX_EXPRESSION_OPERATOR) {
+      result_ = suffixExpressionOperator(builder_, 0);
     }
     else if (root_ == SWITCH_BLOCK) {
       result_ = switchBlock(builder_, 0);
@@ -217,6 +217,9 @@ public class SourcePawnParser implements PsiParser {
     }
     else if (root_ == SWITCH_STATEMENT) {
       result_ = switchStatement(builder_, 0);
+    }
+    else if (root_ == TAG) {
+      result_ = tag(builder_, 0);
     }
     else if (root_ == TERNARY_EXPRESSION) {
       result_ = ternaryExpression(builder_, 0);
@@ -255,7 +258,7 @@ public class SourcePawnParser implements PsiParser {
       BITWISE_OR_EXPRESSION, BITWISE_SHIFT_EXPRESSION, BITWISE_XOR_EXPRESSION, CALL_EXPRESSION,
       EQUALITY_EXPRESSION, EXPRESSION, LITERAL_EXPRESSION, LOGIC_AND_EXPRESSION,
       LOGIC_OR_EXPRESSION, MISC_PREFIX_EXPRESSION, MULTIPLICATIVE_EXPRESSION, PARENTHESIZED_EXPRESSION,
-      PREFIX_OPERATOR_EXPRESSION, RELATIONAL_EXPRESSION, SUFFIX_EXPRESSION, TERNARY_EXPRESSION),
+      RELATIONAL_EXPRESSION, TERNARY_EXPRESSION),
   };
 
   /* ********************************************************** */
@@ -1024,12 +1027,12 @@ public class SourcePawnParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // <<comma_list localVarDeclaration>>
+  // <<comma_list localVarStatement>>
   public static boolean forInitList(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "forInitList")) return false;
     boolean result_ = false;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, "<for init list>");
-    result_ = comma_list(builder_, level_ + 1, localVarDeclaration_parser_);
+    result_ = comma_list(builder_, level_ + 1, localVarStatement_parser_);
     exit_section_(builder_, level_, marker_, FOR_INIT_LIST, result_, false, null);
     return result_;
   }
@@ -1080,7 +1083,7 @@ public class SourcePawnParser implements PsiParser {
   // <<optional_comma_list funcenumBlockDeclaration>>
   public static boolean funcenumBlock(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "funcenumBlock")) return false;
-    if (!nextTokenIs(builder_, "<funcenum block>", OTHER_PUBLIC, TAG)) return false;
+    if (!nextTokenIs(builder_, "<funcenum block>", ID, OTHER_PUBLIC)) return false;
     boolean result_ = false;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, "<funcenum block>");
     result_ = optional_comma_list(builder_, level_ + 1, funcenumBlockDeclaration_parser_);
@@ -1089,10 +1092,10 @@ public class SourcePawnParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // TAG? OTHER_PUBLIC BRACKET_PAREN_L functionParameterList? BRACKET_PAREN_R
+  // tag? OTHER_PUBLIC BRACKET_PAREN_L functionParameterList? BRACKET_PAREN_R
   public static boolean funcenumBlockDeclaration(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "funcenumBlockDeclaration")) return false;
-    if (!nextTokenIs(builder_, "<funcenum block declaration>", OTHER_PUBLIC, TAG)) return false;
+    if (!nextTokenIs(builder_, "<funcenum block declaration>", ID, OTHER_PUBLIC)) return false;
     boolean result_ = false;
     boolean pinned_ = false;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, "<funcenum block declaration>");
@@ -1105,10 +1108,10 @@ public class SourcePawnParser implements PsiParser {
     return result_ || pinned_;
   }
 
-  // TAG?
+  // tag?
   private static boolean funcenumBlockDeclaration_0(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "funcenumBlockDeclaration_0")) return false;
-    consumeToken(builder_, TAG);
+    tag(builder_, level_ + 1);
     return true;
   }
 
@@ -1138,7 +1141,7 @@ public class SourcePawnParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // OTHER_FUNCTAG (OTHER_PUBLIC TAG? identifier | identifier TAG? OTHER_PUBLIC) BRACKET_PAREN_L functionParameterList? BRACKET_PAREN_R
+  // OTHER_FUNCTAG (OTHER_PUBLIC qualifiedIdentifier | identifier tag? OTHER_PUBLIC) BRACKET_PAREN_L functionParameterList? BRACKET_PAREN_R
   static boolean functagDeclaration(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "functagDeclaration")) return false;
     if (!nextTokenIs(builder_, OTHER_FUNCTAG)) return false;
@@ -1155,7 +1158,7 @@ public class SourcePawnParser implements PsiParser {
     return result_ || pinned_;
   }
 
-  // OTHER_PUBLIC TAG? identifier | identifier TAG? OTHER_PUBLIC
+  // OTHER_PUBLIC qualifiedIdentifier | identifier tag? OTHER_PUBLIC
   private static boolean functagDeclaration_1(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "functagDeclaration_1")) return false;
     boolean result_ = false;
@@ -1166,26 +1169,18 @@ public class SourcePawnParser implements PsiParser {
     return result_;
   }
 
-  // OTHER_PUBLIC TAG? identifier
+  // OTHER_PUBLIC qualifiedIdentifier
   private static boolean functagDeclaration_1_0(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "functagDeclaration_1_0")) return false;
     boolean result_ = false;
     Marker marker_ = enter_section_(builder_);
     result_ = consumeToken(builder_, OTHER_PUBLIC);
-    result_ = result_ && functagDeclaration_1_0_1(builder_, level_ + 1);
-    result_ = result_ && identifier(builder_, level_ + 1);
+    result_ = result_ && qualifiedIdentifier(builder_, level_ + 1);
     exit_section_(builder_, marker_, null, result_);
     return result_;
   }
 
-  // TAG?
-  private static boolean functagDeclaration_1_0_1(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "functagDeclaration_1_0_1")) return false;
-    consumeToken(builder_, TAG);
-    return true;
-  }
-
-  // identifier TAG? OTHER_PUBLIC
+  // identifier tag? OTHER_PUBLIC
   private static boolean functagDeclaration_1_1(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "functagDeclaration_1_1")) return false;
     boolean result_ = false;
@@ -1197,10 +1192,10 @@ public class SourcePawnParser implements PsiParser {
     return result_;
   }
 
-  // TAG?
+  // tag?
   private static boolean functagDeclaration_1_1_1(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "functagDeclaration_1_1_1")) return false;
-    consumeToken(builder_, TAG);
+    tag(builder_, level_ + 1);
     return true;
   }
 
@@ -1256,7 +1251,7 @@ public class SourcePawnParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // [OTHER_CONST | OP_BITAND] TAG? (SYNTAX_ELLIPSIS | identifier (BRACKET_SQUARE_L expression? BRACKET_SQUARE_R)* varInit?)
+  // [OTHER_CONST | OP_BITAND] tag? (SYNTAX_ELLIPSIS | identifier (BRACKET_SQUARE_L expression? BRACKET_SQUARE_R)* varInit?)
   public static boolean functionParameter(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "functionParameter")) return false;
     boolean result_ = false;
@@ -1286,10 +1281,10 @@ public class SourcePawnParser implements PsiParser {
     return result_;
   }
 
-  // TAG?
+  // tag?
   private static boolean functionParameter_1(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "functionParameter_1")) return false;
-    consumeToken(builder_, TAG);
+    tag(builder_, level_ + 1);
     return true;
   }
 
@@ -1447,34 +1442,17 @@ public class SourcePawnParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // DIR_INCLUDE OP_LT? PATH OP_GT?
+  // DIR_INCLUDE PATH
   public static boolean includeDirective(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "includeDirective")) return false;
     if (!nextTokenIs(builder_, DIR_INCLUDE)) return false;
     boolean result_ = false;
     boolean pinned_ = false;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, null);
-    result_ = consumeToken(builder_, DIR_INCLUDE);
+    result_ = consumeTokens(builder_, 1, DIR_INCLUDE, PATH);
     pinned_ = result_; // pin = 1
-    result_ = result_ && report_error_(builder_, includeDirective_1(builder_, level_ + 1));
-    result_ = pinned_ && report_error_(builder_, consumeToken(builder_, PATH)) && result_;
-    result_ = pinned_ && includeDirective_3(builder_, level_ + 1) && result_;
     exit_section_(builder_, level_, marker_, INCLUDE_DIRECTIVE, result_, pinned_, null);
     return result_ || pinned_;
-  }
-
-  // OP_LT?
-  private static boolean includeDirective_1(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "includeDirective_1")) return false;
-    consumeToken(builder_, OP_LT);
-    return true;
-  }
-
-  // OP_GT?
-  private static boolean includeDirective_3(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "includeDirective_3")) return false;
-    consumeToken(builder_, OP_GT);
-    return true;
   }
 
   /* ********************************************************** */
@@ -1489,20 +1467,6 @@ public class SourcePawnParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // localVarModifier varDeclarationPartList
-  public static boolean localVarDeclaration(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "localVarDeclaration")) return false;
-    boolean result_ = false;
-    boolean pinned_ = false;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, "<local var declaration>");
-    result_ = localVarModifier(builder_, level_ + 1);
-    pinned_ = result_; // pin = 1
-    result_ = result_ && varDeclarationPartList(builder_, level_ + 1);
-    exit_section_(builder_, level_, marker_, LOCAL_VAR_DECLARATION, result_, pinned_, null);
-    return result_ || pinned_;
-  }
-
-  /* ********************************************************** */
   // OTHER_STATIC | OTHER_NEW | OTHER_CONST | OTHER_DECL
   public static boolean localVarModifier(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "localVarModifier")) return false;
@@ -1514,6 +1478,20 @@ public class SourcePawnParser implements PsiParser {
     if (!result_) result_ = consumeToken(builder_, OTHER_DECL);
     exit_section_(builder_, level_, marker_, LOCAL_VAR_MODIFIER, result_, false, null);
     return result_;
+  }
+
+  /* ********************************************************** */
+  // localVarModifier varDeclarationPartList
+  public static boolean localVarStatement(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "localVarStatement")) return false;
+    boolean result_ = false;
+    boolean pinned_ = false;
+    Marker marker_ = enter_section_(builder_, level_, _NONE_, "<local var statement>");
+    result_ = localVarModifier(builder_, level_ + 1);
+    pinned_ = result_; // pin = 1
+    result_ = result_ && varDeclarationPartList(builder_, level_ + 1);
+    exit_section_(builder_, level_, marker_, LOCAL_VAR_STATEMENT, result_, pinned_, null);
+    return result_ || pinned_;
   }
 
   /* ********************************************************** */
@@ -1816,23 +1794,23 @@ public class SourcePawnParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // prefixOperatorExpression prefixExpression | suffixExpressionWrapper
+  // prefixExpressionOperator prefixExpression | suffixExpression
   static boolean prefixExpression(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "prefixExpression")) return false;
     boolean result_ = false;
     Marker marker_ = enter_section_(builder_);
     result_ = prefixExpression_0(builder_, level_ + 1);
-    if (!result_) result_ = suffixExpressionWrapper(builder_, level_ + 1);
+    if (!result_) result_ = suffixExpression(builder_, level_ + 1);
     exit_section_(builder_, marker_, null, result_);
     return result_;
   }
 
-  // prefixOperatorExpression prefixExpression
+  // prefixExpressionOperator prefixExpression
   private static boolean prefixExpression_0(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "prefixExpression_0")) return false;
     boolean result_ = false;
     Marker marker_ = enter_section_(builder_);
-    result_ = prefixOperatorExpression(builder_, level_ + 1);
+    result_ = prefixExpressionOperator(builder_, level_ + 1);
     result_ = result_ && prefixExpression(builder_, level_ + 1);
     exit_section_(builder_, marker_, null, result_);
     return result_;
@@ -1840,36 +1818,36 @@ public class SourcePawnParser implements PsiParser {
 
   /* ********************************************************** */
   // OP_SUB | OP_DEC | OP_INC | OP_NOT | OP_BITNOT
-  public static boolean prefixOperatorExpression(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "prefixOperatorExpression")) return false;
+  public static boolean prefixExpressionOperator(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "prefixExpressionOperator")) return false;
     boolean result_ = false;
-    Marker marker_ = enter_section_(builder_, level_, _LEFT_, "<prefix operator expression>");
+    Marker marker_ = enter_section_(builder_, level_, _LEFT_, "<prefix expression operator>");
     result_ = consumeToken(builder_, OP_SUB);
     if (!result_) result_ = consumeToken(builder_, OP_DEC);
     if (!result_) result_ = consumeToken(builder_, OP_INC);
     if (!result_) result_ = consumeToken(builder_, OP_NOT);
     if (!result_) result_ = consumeToken(builder_, OP_BITNOT);
-    exit_section_(builder_, level_, marker_, PREFIX_OPERATOR_EXPRESSION, result_, false, null);
+    exit_section_(builder_, level_, marker_, PREFIX_EXPRESSION_OPERATOR, result_, false, null);
     return result_;
   }
 
   /* ********************************************************** */
-  // TAG? identifier
+  // tag? identifier
   public static boolean qualifiedIdentifier(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "qualifiedIdentifier")) return false;
-    if (!nextTokenIs(builder_, "<qualified identifier>", ID, TAG)) return false;
+    if (!nextTokenIs(builder_, ID)) return false;
     boolean result_ = false;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, "<qualified identifier>");
+    Marker marker_ = enter_section_(builder_);
     result_ = qualifiedIdentifier_0(builder_, level_ + 1);
     result_ = result_ && identifier(builder_, level_ + 1);
-    exit_section_(builder_, level_, marker_, QUALIFIED_IDENTIFIER, result_, false, null);
+    exit_section_(builder_, marker_, QUALIFIED_IDENTIFIER, result_);
     return result_;
   }
 
-  // TAG?
+  // tag?
   private static boolean qualifiedIdentifier_0(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "qualifiedIdentifier_0")) return false;
-    consumeToken(builder_, TAG);
+    tag(builder_, level_ + 1);
     return true;
   }
 
@@ -1961,7 +1939,7 @@ public class SourcePawnParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // localVarDeclaration
+  // localVarStatement
   //             | ifStatement
   //             | elseStatement
   //             | forStatement
@@ -1976,7 +1954,7 @@ public class SourcePawnParser implements PsiParser {
     if (!recursion_guard_(builder_, level_, "statement")) return false;
     boolean result_ = false;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, "<statement>");
-    result_ = localVarDeclaration(builder_, level_ + 1);
+    result_ = localVarStatement(builder_, level_ + 1);
     if (!result_) result_ = ifStatement(builder_, level_ + 1);
     if (!result_) result_ = elseStatement(builder_, level_ + 1);
     if (!result_) result_ = forStatement(builder_, level_ + 1);
@@ -2018,46 +1996,48 @@ public class SourcePawnParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // <<optional_comma_list localVarDeclaration>>
+  // <<optional_comma_list localVarStatement>>
   public static boolean structList(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "structList")) return false;
     boolean result_ = false;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, "<struct list>");
-    result_ = optional_comma_list(builder_, level_ + 1, localVarDeclaration_parser_);
+    result_ = optional_comma_list(builder_, level_ + 1, localVarStatement_parser_);
     exit_section_(builder_, level_, marker_, STRUCT_LIST, result_, false, null);
     return result_;
   }
 
   /* ********************************************************** */
-  // OP_DEC | OP_INC
-  public static boolean suffixExpression(PsiBuilder builder_, int level_) {
+  // value suffixExpressionOperator?
+  static boolean suffixExpression(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "suffixExpression")) return false;
-    if (!nextTokenIs(builder_, "<suffix expression>", OP_DEC, OP_INC)) return false;
     boolean result_ = false;
-    Marker marker_ = enter_section_(builder_, level_, _LEFT_, "<suffix expression>");
-    result_ = consumeToken(builder_, OP_DEC);
-    if (!result_) result_ = consumeToken(builder_, OP_INC);
-    exit_section_(builder_, level_, marker_, SUFFIX_EXPRESSION, result_, false, null);
-    return result_;
+    boolean pinned_ = false;
+    Marker marker_ = enter_section_(builder_, level_, _NONE_, null);
+    result_ = value(builder_, level_ + 1);
+    pinned_ = result_; // pin = 1
+    result_ = result_ && suffixExpression_1(builder_, level_ + 1);
+    exit_section_(builder_, level_, marker_, null, result_, pinned_, null);
+    return result_ || pinned_;
+  }
+
+  // suffixExpressionOperator?
+  private static boolean suffixExpression_1(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "suffixExpression_1")) return false;
+    suffixExpressionOperator(builder_, level_ + 1);
+    return true;
   }
 
   /* ********************************************************** */
-  // value suffixExpression?
-  static boolean suffixExpressionWrapper(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "suffixExpressionWrapper")) return false;
+  // OP_DEC | OP_INC
+  public static boolean suffixExpressionOperator(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "suffixExpressionOperator")) return false;
+    if (!nextTokenIs(builder_, "<suffix expression operator>", OP_DEC, OP_INC)) return false;
     boolean result_ = false;
-    Marker marker_ = enter_section_(builder_);
-    result_ = value(builder_, level_ + 1);
-    result_ = result_ && suffixExpressionWrapper_1(builder_, level_ + 1);
-    exit_section_(builder_, marker_, null, result_);
+    Marker marker_ = enter_section_(builder_, level_, _LEFT_, "<suffix expression operator>");
+    result_ = consumeToken(builder_, OP_DEC);
+    if (!result_) result_ = consumeToken(builder_, OP_INC);
+    exit_section_(builder_, level_, marker_, SUFFIX_EXPRESSION_OPERATOR, result_, false, null);
     return result_;
-  }
-
-  // suffixExpression?
-  private static boolean suffixExpressionWrapper_1(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "suffixExpressionWrapper_1")) return false;
-    suffixExpression(builder_, level_ + 1);
-    return true;
   }
 
   /* ********************************************************** */
@@ -2109,15 +2089,16 @@ public class SourcePawnParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // (KEY_DEFAULT | KEY_CASE) TAG functionBlock?
+  // (KEY_DEFAULT | KEY_CASE) identifier SYNTAX_COLON functionBlock?
   public static boolean switchCase(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "switchCase")) return false;
     if (!nextTokenIs(builder_, "<switch case>", KEY_CASE, KEY_DEFAULT)) return false;
     boolean result_ = false;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, "<switch case>");
     result_ = switchCase_0(builder_, level_ + 1);
-    result_ = result_ && consumeToken(builder_, TAG);
-    result_ = result_ && switchCase_2(builder_, level_ + 1);
+    result_ = result_ && identifier(builder_, level_ + 1);
+    result_ = result_ && consumeToken(builder_, SYNTAX_COLON);
+    result_ = result_ && switchCase_3(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, SWITCH_CASE, result_, false, null);
     return result_;
   }
@@ -2134,8 +2115,8 @@ public class SourcePawnParser implements PsiParser {
   }
 
   // functionBlock?
-  private static boolean switchCase_2(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "switchCase_2")) return false;
+  private static boolean switchCase_3(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "switchCase_3")) return false;
     functionBlock(builder_, level_ + 1);
     return true;
   }
@@ -2154,6 +2135,30 @@ public class SourcePawnParser implements PsiParser {
     result_ = pinned_ && switchBlock(builder_, level_ + 1) && result_;
     exit_section_(builder_, level_, marker_, SWITCH_STATEMENT, result_, pinned_, null);
     return result_ || pinned_;
+  }
+
+  /* ********************************************************** */
+  // identifier !WHITE_SPACE SYNTAX_COLON
+  public static boolean tag(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "tag")) return false;
+    if (!nextTokenIs(builder_, ID)) return false;
+    boolean result_ = false;
+    Marker marker_ = enter_section_(builder_);
+    result_ = identifier(builder_, level_ + 1);
+    result_ = result_ && tag_1(builder_, level_ + 1);
+    result_ = result_ && consumeToken(builder_, SYNTAX_COLON);
+    exit_section_(builder_, marker_, TAG, result_);
+    return result_;
+  }
+
+  // !WHITE_SPACE
+  private static boolean tag_1(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "tag_1")) return false;
+    boolean result_ = false;
+    Marker marker_ = enter_section_(builder_, level_, _NOT_, null);
+    result_ = !consumeToken(builder_, WHITE_SPACE);
+    exit_section_(builder_, level_, marker_, null, result_, false, null);
+    return result_;
   }
 
   /* ********************************************************** */
@@ -2232,7 +2237,7 @@ public class SourcePawnParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // TAG? (literalExpression
+  // tag? (literalExpression
   //                         | miscPrefixExpression
   //                         | parenthesizedExpression
   //                         | callExpression
@@ -2248,10 +2253,10 @@ public class SourcePawnParser implements PsiParser {
     return result_;
   }
 
-  // TAG?
+  // tag?
   private static boolean value_0(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "value_0")) return false;
-    consumeToken(builder_, TAG);
+    tag(builder_, level_ + 1);
     return true;
   }
 
@@ -2328,12 +2333,12 @@ public class SourcePawnParser implements PsiParser {
   // qualifiedIdentifier (BRACKET_SQUARE_L expression? BRACKET_SQUARE_R)*
   public static boolean varDeclarationPart(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "varDeclarationPart")) return false;
-    if (!nextTokenIs(builder_, "<var declaration part>", ID, TAG)) return false;
+    if (!nextTokenIs(builder_, ID)) return false;
     boolean result_ = false;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, "<var declaration part>");
+    Marker marker_ = enter_section_(builder_);
     result_ = qualifiedIdentifier(builder_, level_ + 1);
     result_ = result_ && varDeclarationPart_1(builder_, level_ + 1);
-    exit_section_(builder_, level_, marker_, VAR_DECLARATION_PART, result_, false, null);
+    exit_section_(builder_, marker_, VAR_DECLARATION_PART, result_);
     return result_;
   }
 
@@ -2372,7 +2377,7 @@ public class SourcePawnParser implements PsiParser {
   // <<comma_list varDeclarationPart>> varInit?
   static boolean varDeclarationPartList(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "varDeclarationPartList")) return false;
-    if (!nextTokenIs(builder_, "", ID, TAG)) return false;
+    if (!nextTokenIs(builder_, ID)) return false;
     boolean result_ = false;
     Marker marker_ = enter_section_(builder_);
     result_ = comma_list(builder_, level_ + 1, varDeclarationPart_parser_);
@@ -2444,9 +2449,9 @@ public class SourcePawnParser implements PsiParser {
       return functionParameter(builder_, level_ + 1);
     }
   };
-  final static Parser localVarDeclaration_parser_ = new Parser() {
+  final static Parser localVarStatement_parser_ = new Parser() {
     public boolean parse(PsiBuilder builder_, int level_) {
-      return localVarDeclaration(builder_, level_ + 1);
+      return localVarStatement(builder_, level_ + 1);
     }
   };
   final static Parser varBlockStatement_parser_ = new Parser() {

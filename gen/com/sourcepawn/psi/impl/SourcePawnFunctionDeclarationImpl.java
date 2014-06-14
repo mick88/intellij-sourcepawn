@@ -54,8 +54,8 @@ public class SourcePawnFunctionDeclarationImpl extends ASTWrapperPsiElement impl
 
   @Override
   @Nullable
-  public PsiElement getTag() {
-    return findChildByType(TAG);
+  public SourcePawnTag getTag() {
+    return findChildByClass(SourcePawnTag.class);
   }
 
 }

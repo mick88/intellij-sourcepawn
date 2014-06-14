@@ -191,11 +191,11 @@ public class SourcePawnVisitor extends PsiElementVisitor {
     visitExpression(o);
   }
 
-  public void visitLocalVarDeclaration(@NotNull SourcePawnLocalVarDeclaration o) {
+  public void visitLocalVarModifier(@NotNull SourcePawnLocalVarModifier o) {
     visitPsiElement(o);
   }
 
-  public void visitLocalVarModifier(@NotNull SourcePawnLocalVarModifier o) {
+  public void visitLocalVarStatement(@NotNull SourcePawnLocalVarStatement o) {
     visitPsiElement(o);
   }
 
@@ -231,8 +231,8 @@ public class SourcePawnVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitPrefixOperatorExpression(@NotNull SourcePawnPrefixOperatorExpression o) {
-    visitExpression(o);
+  public void visitPrefixExpressionOperator(@NotNull SourcePawnPrefixExpressionOperator o) {
+    visitPsiElement(o);
   }
 
   public void visitQualifiedIdentifier(@NotNull SourcePawnQualifiedIdentifier o) {
@@ -263,8 +263,8 @@ public class SourcePawnVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitSuffixExpression(@NotNull SourcePawnSuffixExpression o) {
-    visitExpression(o);
+  public void visitSuffixExpressionOperator(@NotNull SourcePawnSuffixExpressionOperator o) {
+    visitPsiElement(o);
   }
 
   public void visitSwitchBlock(@NotNull SourcePawnSwitchBlock o) {
@@ -276,6 +276,10 @@ public class SourcePawnVisitor extends PsiElementVisitor {
   }
 
   public void visitSwitchStatement(@NotNull SourcePawnSwitchStatement o) {
+    visitPsiElement(o);
+  }
+
+  public void visitTag(@NotNull SourcePawnTag o) {
     visitPsiElement(o);
   }
 

@@ -17,6 +17,12 @@ public interface SourcePawnAssignExpression extends SourcePawnExpression {
   List<SourcePawnIdentifier> getIdentifierList();
 
   @Nullable
-  PsiElement getTag();
+  SourcePawnPrefixExpressionOperator getPrefixExpressionOperator();
+
+  @NotNull
+  List<SourcePawnSuffixExpressionOperator> getSuffixExpressionOperatorList();
+
+  @Nullable
+  SourcePawnTag getTag();
 
 }

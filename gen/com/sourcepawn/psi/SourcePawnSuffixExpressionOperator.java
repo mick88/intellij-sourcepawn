@@ -5,12 +5,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface SourcePawnQualifiedIdentifier extends PsiElement {
-
-  @NotNull
-  SourcePawnIdentifier getIdentifier();
+public interface SourcePawnSuffixExpressionOperator extends PsiElement {
 
   @Nullable
-  SourcePawnTag getTag();
+  SourcePawnExpression getExpression();
+
+  @Nullable
+  SourcePawnIdentifier getIdentifier();
 
 }

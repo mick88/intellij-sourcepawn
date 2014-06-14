@@ -66,8 +66,8 @@ public class SourcePawnStatementImpl extends ASTWrapperPsiElement implements Sou
 
   @Override
   @Nullable
-  public SourcePawnLocalVarDeclaration getLocalVarDeclaration() {
-    return findChildByClass(SourcePawnLocalVarDeclaration.class);
+  public SourcePawnLocalVarStatement getLocalVarStatement() {
+    return findChildByClass(SourcePawnLocalVarStatement.class);
   }
 
   @Override

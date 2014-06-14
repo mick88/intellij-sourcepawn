@@ -29,8 +29,7 @@ CONSTANT_INTEGER=-?[0-9]+
 CONSTANT_BOOLEAN=(true|false)
 CONSTANT_STRING=\"([^\"\\]|\\.)*\"
 CONSTANT_CHARACTER='(\\?.|\\[0-9]{3}|\\x[:letter:]{3})'
-TAG=[a-zA-Z_][\w@]*:
-ID=[a-zA-Z_][\w@]*
+ID=[a-zA-Z_0-9]+
 LINE_COMMENT="//".*
 BLOCK_COMMENT="/"\*(.|[\r\n])+?\*"/"
 PATH=<.+>
@@ -132,6 +131,7 @@ PATH=<.+>
   "decl"                       { return OTHER_DECL; }
   "enum"                       { return OTHER_ENUM; }
   "struct"                     { return OTHER_STRUCT; }
+  "WHITE_SPACE"                { return WHITE_SPACE; }
   "OP_STATE"                   { return OP_STATE; }
 
   {DIR_PRAGMA_DEPRECATED}      { return DIR_PRAGMA_DEPRECATED; }
@@ -141,7 +141,6 @@ PATH=<.+>
   {CONSTANT_BOOLEAN}           { return CONSTANT_BOOLEAN; }
   {CONSTANT_STRING}            { return CONSTANT_STRING; }
   {CONSTANT_CHARACTER}         { return CONSTANT_CHARACTER; }
-  {TAG}                        { return TAG; }
   {ID}                         { return ID; }
   {LINE_COMMENT}               { return LINE_COMMENT; }
   {BLOCK_COMMENT}              { return BLOCK_COMMENT; }

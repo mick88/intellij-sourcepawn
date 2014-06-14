@@ -11,27 +11,27 @@ import static com.sourcepawn.psi.SourcePawnTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.sourcepawn.psi.*;
 
-public class SourcePawnFuncenumBlockDeclarationImpl extends ASTWrapperPsiElement implements SourcePawnFuncenumBlockDeclaration {
+public class SourcePawnSuffixExpressionOperatorImpl extends ASTWrapperPsiElement implements SourcePawnSuffixExpressionOperator {
 
-  public SourcePawnFuncenumBlockDeclarationImpl(ASTNode node) {
+  public SourcePawnSuffixExpressionOperatorImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
-    if (visitor instanceof SourcePawnVisitor) ((SourcePawnVisitor)visitor).visitFuncenumBlockDeclaration(this);
+    if (visitor instanceof SourcePawnVisitor) ((SourcePawnVisitor)visitor).visitSuffixExpressionOperator(this);
     else super.accept(visitor);
   }
 
   @Override
   @Nullable
-  public SourcePawnFunctionParameterList getFunctionParameterList() {
-    return findChildByClass(SourcePawnFunctionParameterList.class);
+  public SourcePawnExpression getExpression() {
+    return findChildByClass(SourcePawnExpression.class);
   }
 
   @Override
   @Nullable
-  public SourcePawnTag getTag() {
-    return findChildByClass(SourcePawnTag.class);
+  public SourcePawnIdentifier getIdentifier() {
+    return findChildByClass(SourcePawnIdentifier.class);
   }
 
 }

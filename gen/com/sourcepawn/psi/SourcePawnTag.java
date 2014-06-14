@@ -5,18 +5,9 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface SourcePawnFunctionParameter extends PsiElement {
+public interface SourcePawnTag extends PsiElement {
 
   @NotNull
-  List<SourcePawnExpression> getExpressionList();
-
-  @Nullable
   SourcePawnIdentifier getIdentifier();
-
-  @Nullable
-  SourcePawnTag getTag();
-
-  @Nullable
-  SourcePawnVarInit getVarInit();
 
 }

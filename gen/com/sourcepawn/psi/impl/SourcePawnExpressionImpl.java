@@ -36,8 +36,20 @@ public class SourcePawnExpressionImpl extends ASTWrapperPsiElement implements So
 
   @Override
   @Nullable
-  public PsiElement getTag() {
-    return findChildByType(TAG);
+  public SourcePawnPrefixExpressionOperator getPrefixExpressionOperator() {
+    return findChildByClass(SourcePawnPrefixExpressionOperator.class);
+  }
+
+  @Override
+  @Nullable
+  public SourcePawnSuffixExpressionOperator getSuffixExpressionOperator() {
+    return findChildByClass(SourcePawnSuffixExpressionOperator.class);
+  }
+
+  @Override
+  @Nullable
+  public SourcePawnTag getTag() {
+    return findChildByClass(SourcePawnTag.class);
   }
 
 }

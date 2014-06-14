@@ -35,14 +35,26 @@ public class SourcePawnRelationalExpressionImpl extends SourcePawnExpressionImpl
 
   @Override
   @Nullable
+  public SourcePawnPrefixExpressionOperator getPrefixExpressionOperator() {
+    return findChildByClass(SourcePawnPrefixExpressionOperator.class);
+  }
+
+  @Override
+  @Nullable
   public SourcePawnRelationalOperator getRelationalOperator() {
     return findChildByClass(SourcePawnRelationalOperator.class);
   }
 
   @Override
+  @NotNull
+  public List<SourcePawnSuffixExpressionOperator> getSuffixExpressionOperatorList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, SourcePawnSuffixExpressionOperator.class);
+  }
+
+  @Override
   @Nullable
-  public PsiElement getTag() {
-    return findChildByType(TAG);
+  public SourcePawnTag getTag() {
+    return findChildByClass(SourcePawnTag.class);
   }
 
 }

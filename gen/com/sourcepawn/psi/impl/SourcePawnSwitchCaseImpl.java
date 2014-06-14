@@ -30,8 +30,8 @@ public class SourcePawnSwitchCaseImpl extends ASTWrapperPsiElement implements So
 
   @Override
   @NotNull
-  public PsiElement getTag() {
-    return findNotNullChildByType(TAG);
+  public SourcePawnIdentifier getIdentifier() {
+    return findNotNullChildByClass(SourcePawnIdentifier.class);
   }
 
 }

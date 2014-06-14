@@ -14,6 +14,12 @@ public interface SourcePawnExpression extends PsiElement {
   SourcePawnIdentifier getIdentifier();
 
   @Nullable
-  PsiElement getTag();
+  SourcePawnPrefixExpressionOperator getPrefixExpressionOperator();
+
+  @Nullable
+  SourcePawnSuffixExpressionOperator getSuffixExpressionOperator();
+
+  @Nullable
+  SourcePawnTag getTag();
 
 }

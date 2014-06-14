@@ -1,6 +1,5 @@
 
 // structure based off https://github.com/JetBrains/intellij-haxe/blob/master/grammar/haXe.bnf
-// structure based off https://github.com/JetBrains/intellij-haxe/blob/master/grammar/haXe.bnf
 
 {
     parserClass="com.sourcepawn.parser.SourcePawnParser"
@@ -116,7 +115,7 @@
         DIR_INCLUDE="#include"
         DIR_LINE="#line"
         DIR_PRAGMA="#pragma"
-        DIR_PRAGMA_DEPRECATED="regexp:deprecated .*"
+        DIR_PRAGMA_DEPRECATED="regexp:deprecated .*" // todo: less ugly way of this?
         DIR_SECTION="#section"
         DIR_TRYINC="#tryinclude"
         DIR_UNDEF="#undef"
@@ -144,16 +143,15 @@
         CONSTANT_CHARACTER="regexp:'(\\?.|\\\d{3}|\\x\p{Alpha}{3})'"
 
         // general
-        TAG="regexp:[a-zA-Z_][\w@]*:"
-        ID="regexp:[a-zA-Z_][\w@]*"
+        ID="regexp:\w+"
         LINE_COMMENT="regexp://.*"
         BLOCK_COMMENT="regexp:/\*(.|[\r\n])+?\*/"
         PATH="regexp:<.+>"
     ]
 
-    extends(".*(Expression|Constant)")="expression"
-    pin(".*Expression")=1
-    pin(".*(Directive|Statement)")=1
+    extends(".*Expression")="expression"
+    pin(".*Expression")=1 // todo: check all these pins
+    pin(".*(Directive|Statement)")=1 // todo: check all these pins
 }
 
 sourcepawnFile ::= topLevelDeclaration*
@@ -174,7 +172,7 @@ varBlock ::= BRACKET_CURLY_L <<comma_list varBlockStatement>> BRACKET_CURLY_R
 varBlockStatement ::= literalExpression | identifier OP_EQ (identifier | literalExpression)
 
 localVarModifier ::= OTHER_STATIC | OTHER_NEW | OTHER_CONST | OTHER_DECL
-localVarDeclaration ::= localVarModifier varDeclarationPartList {pin=1} // todo: is a pin needed?
+localVarStatement ::= localVarModifier varDeclarationPartList
 
 globalVarModifier ::= OTHER_PUBLIC | OTHER_STATIC | OTHER_NEW | OTHER_CONST | OTHER_DECL
 globalVarDeclaration ::= globalVarModifier varDeclarationPartList SYNTAX_SEMICOLON? {pin=1} // todo: is a pin needed?
@@ -187,7 +185,8 @@ varDeclarationPart ::= qualifiedIdentifier (BRACKET_SQUARE_L expression? BRACKET
  */
 
 identifier ::= ID
-qualifiedIdentifier ::= TAG? identifier
+tag ::= identifier !WHITE_SPACE SYNTAX_COLON
+qualifiedIdentifier ::= tag? identifier
 
 meta comma_list ::= <<param>> (SYNTAX_COMMA <<param>>)*
 meta optional_comma_list ::= <<param>> (SYNTAX_COMMA <<param>>)* SYNTAX_COMMA?
@@ -224,10 +223,10 @@ directiveDeclaration ::= includeDirective
                      | ifDirective | elseifDirective | elseDirective | endifDirective
                      | endInputDirective
 
-includeDirective ::= DIR_INCLUDE OP_LT? PATH OP_GT?
+includeDirective ::= DIR_INCLUDE PATH
 defineDirective ::= DIR_DEFINE expression expression? // todo: separate this for defining functions ?
 undefineDirective ::= DIR_UNDEF identifier
-pragmaDirective ::= DIR_PRAGMA (identifier expression | DIR_PRAGMA_DEPRECATED)
+pragmaDirective ::= DIR_PRAGMA (identifier expression | DIR_PRAGMA_DEPRECATED) // todo: less ugly way of this?
 ifDirective ::= DIR_IF expression
 elseifDirective ::= DIR_ELSEIF expression
 elseDirective ::= DIR_ELSE
@@ -239,7 +238,7 @@ endInputDirective ::= DIR_ENDINPUT
  */
 
 structDeclaration ::= OTHER_STRUCT identifier BRACKET_CURLY_L structList BRACKET_CURLY_R SYNTAX_SEMICOLON? {pin=1}
-structList ::= <<optional_comma_list localVarDeclaration>> // can use localVarDeclaration because guaranteed to have a const prefix (I think?)
+structList ::= <<optional_comma_list localVarStatement>> // can use localVarDeclaration because guaranteed to have a const prefix (I think?)
 
 /*
     enum
@@ -257,16 +256,16 @@ functionDeclaration ::= (funcenumDeclaration | functagDeclaration | bareFunction
 private normalFunctionDeclaration ::= [OTHER_PUBLIC | OTHER_STOCK] qualifiedIdentifier BRACKET_PAREN_L functionParameterList? BRACKET_PAREN_R functionBlock {pin=3}
 private bareFunctionDeclaration ::= (OTHER_FORWARD | OTHER_NATIVE) qualifiedIdentifier BRACKET_PAREN_L functionParameterList? BRACKET_PAREN_R {pin=1}
 
-private functagDeclaration ::=  OTHER_FUNCTAG (OTHER_PUBLIC TAG? identifier | identifier TAG? OTHER_PUBLIC) BRACKET_PAREN_L functionParameterList? BRACKET_PAREN_R {pin=1}
+private functagDeclaration ::=  OTHER_FUNCTAG (OTHER_PUBLIC qualifiedIdentifier | identifier tag? OTHER_PUBLIC) BRACKET_PAREN_L functionParameterList? BRACKET_PAREN_R {pin=1} // todo: could this just be identifier qualifiedIdentifier ? might pick up public
 
 functionParameterList ::= <<comma_list functionParameter>>
-functionParameter ::= [OTHER_CONST | OP_BITAND] TAG? (SYNTAX_ELLIPSIS | identifier (BRACKET_SQUARE_L expression? BRACKET_SQUARE_R)* varInit?)
+functionParameter ::= [OTHER_CONST | OP_BITAND] tag? (SYNTAX_ELLIPSIS | identifier (BRACKET_SQUARE_L expression? BRACKET_SQUARE_R)* varInit?)
 
 functionBlock ::= blockStatement | statement
 
 funcenumDeclaration ::= OTHER_FUNCENUM identifier BRACKET_CURLY_L funcenumBlock BRACKET_CURLY_R {pin=1}
 funcenumBlock ::= <<optional_comma_list funcenumBlockDeclaration>>
-funcenumBlockDeclaration ::= TAG? OTHER_PUBLIC BRACKET_PAREN_L functionParameterList? BRACKET_PAREN_R {pin=2}
+funcenumBlockDeclaration ::= tag? OTHER_PUBLIC BRACKET_PAREN_L functionParameterList? BRACKET_PAREN_R {pin=2}
 
 /*
     statements
@@ -274,7 +273,7 @@ funcenumBlockDeclaration ::= TAG? OTHER_PUBLIC BRACKET_PAREN_L functionParameter
 
 private blockStatement ::= BRACKET_CURLY_L (statement SYNTAX_SEMICOLON?)* BRACKET_CURLY_R
 
-statement ::= localVarDeclaration
+statement ::= localVarStatement
             | ifStatement
             | elseStatement
             | forStatement
@@ -295,11 +294,11 @@ breakStatement ::= KEY_BREAK
 continueStatement ::= KEY_CONTINUE
 
 forStatement ::= KEY_FOR BRACKET_PAREN_L forInitList? SYNTAX_SEMICOLON expression? SYNTAX_SEMICOLON expression? BRACKET_PAREN_R functionBlock
-forInitList ::= <<comma_list localVarDeclaration>>
+forInitList ::= <<comma_list localVarStatement>>
 
 switchStatement ::= KEY_SWITCH parenthesizedExpression switchBlock
 switchBlock ::= BRACKET_CURLY_L (switchCase SYNTAX_SEMICOLON?)+ BRACKET_CURLY_R
-switchCase ::= (KEY_DEFAULT | KEY_CASE) TAG functionBlock?
+switchCase ::= (KEY_DEFAULT | KEY_CASE) identifier SYNTAX_COLON functionBlock?
 
 /*
     expression
@@ -345,13 +344,13 @@ left additiveExpression ::= arithmeticAdditiveOperator multiplicativeExpressionW
 private multiplicativeExpressionWrapper ::= prefixExpression multiplicativeExpression*
 left multiplicativeExpression ::= arithmeticMultiplicativeOperator prefixExpression
 
-private prefixExpression ::= prefixOperatorExpression prefixExpression | suffixExpressionWrapper
-left prefixOperatorExpression ::= OP_SUB | OP_DEC | OP_INC | OP_NOT | OP_BITNOT
+private prefixExpression ::= prefixExpressionOperator prefixExpression | suffixExpression // todo: check pinning for this
+left prefixExpressionOperator ::= OP_SUB | OP_DEC | OP_INC | OP_NOT | OP_BITNOT
 
-private suffixExpressionWrapper ::= value suffixExpression?
-left suffixExpression ::= OP_DEC | OP_INC
+private suffixExpression ::= value suffixExpressionOperator?
+left suffixExpressionOperator ::= OP_DEC | OP_INC
 
-private value ::= TAG? (literalExpression
+private value ::= tag? (literalExpression
                         | miscPrefixExpression
                         | parenthesizedExpression
                         | callExpression
@@ -361,5 +360,5 @@ private value ::= TAG? (literalExpression
 miscPrefixExpression ::= miscOperator BRACKET_PAREN_L? expression BRACKET_PAREN_R?
 callExpression ::= identifier BRACKET_PAREN_L expressionList? BRACKET_PAREN_R {pin=2} // todo: should this not be an expression so no pin needed?
 arrayExpression ::= identifier (BRACKET_SQUARE_L expression? BRACKET_SQUARE_R)+ {pin=2} // todo: should this not be an expression so no pin needed?
-literalExpression ::= constantList // todo: privatise constant list?
+literalExpression ::= constantList // todo: privatise constant list? rename to something not ending with Expression so no pin? is a pin needed?
 parenthesizedExpression ::= BRACKET_PAREN_L expression BRACKET_PAREN_R

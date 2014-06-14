@@ -11,6 +11,6 @@ public interface SourcePawnSwitchCase extends PsiElement {
   SourcePawnFunctionBlock getFunctionBlock();
 
   @NotNull
-  PsiElement getTag();
+  SourcePawnIdentifier getIdentifier();
 
 }

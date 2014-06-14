@@ -35,8 +35,20 @@ public class SourcePawnBitwiseOrExpressionImpl extends SourcePawnExpressionImpl 
 
   @Override
   @Nullable
-  public PsiElement getTag() {
-    return findChildByType(TAG);
+  public SourcePawnPrefixExpressionOperator getPrefixExpressionOperator() {
+    return findChildByClass(SourcePawnPrefixExpressionOperator.class);
+  }
+
+  @Override
+  @NotNull
+  public List<SourcePawnSuffixExpressionOperator> getSuffixExpressionOperatorList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, SourcePawnSuffixExpressionOperator.class);
+  }
+
+  @Override
+  @Nullable
+  public SourcePawnTag getTag() {
+    return findChildByClass(SourcePawnTag.class);
   }
 
 }

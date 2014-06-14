@@ -11,33 +11,27 @@ import static com.sourcepawn.psi.SourcePawnTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.sourcepawn.psi.*;
 
-public class SourcePawnFunctionParameterImpl extends ASTWrapperPsiElement implements SourcePawnFunctionParameter {
+public class SourcePawnLocalVarStatementImpl extends ASTWrapperPsiElement implements SourcePawnLocalVarStatement {
 
-  public SourcePawnFunctionParameterImpl(ASTNode node) {
+  public SourcePawnLocalVarStatementImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
-    if (visitor instanceof SourcePawnVisitor) ((SourcePawnVisitor)visitor).visitFunctionParameter(this);
+    if (visitor instanceof SourcePawnVisitor) ((SourcePawnVisitor)visitor).visitLocalVarStatement(this);
     else super.accept(visitor);
   }
 
   @Override
+  @Nullable
+  public SourcePawnCommaList getCommaList() {
+    return findChildByClass(SourcePawnCommaList.class);
+  }
+
+  @Override
   @NotNull
-  public List<SourcePawnExpression> getExpressionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, SourcePawnExpression.class);
-  }
-
-  @Override
-  @Nullable
-  public SourcePawnIdentifier getIdentifier() {
-    return findChildByClass(SourcePawnIdentifier.class);
-  }
-
-  @Override
-  @Nullable
-  public SourcePawnTag getTag() {
-    return findChildByClass(SourcePawnTag.class);
+  public SourcePawnLocalVarModifier getLocalVarModifier() {
+    return findNotNullChildByClass(SourcePawnLocalVarModifier.class);
   }
 
   @Override

@@ -11,6 +11,6 @@ public interface SourcePawnFuncenumBlockDeclaration extends PsiElement {
   SourcePawnFunctionParameterList getFunctionParameterList();
 
   @Nullable
-  PsiElement getTag();
+  SourcePawnTag getTag();
 
 }

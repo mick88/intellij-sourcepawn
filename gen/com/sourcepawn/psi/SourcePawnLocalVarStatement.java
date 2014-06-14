@@ -5,16 +5,13 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface SourcePawnFunctionParameter extends PsiElement {
+public interface SourcePawnLocalVarStatement extends PsiElement {
+
+  @Nullable
+  SourcePawnCommaList getCommaList();
 
   @NotNull
-  List<SourcePawnExpression> getExpressionList();
-
-  @Nullable
-  SourcePawnIdentifier getIdentifier();
-
-  @Nullable
-  SourcePawnTag getTag();
+  SourcePawnLocalVarModifier getLocalVarModifier();
 
   @Nullable
   SourcePawnVarInit getVarInit();

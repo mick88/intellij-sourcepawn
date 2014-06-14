@@ -29,7 +29,7 @@ public interface SourcePawnStatement extends PsiElement {
   SourcePawnIfStatement getIfStatement();
 
   @Nullable
-  SourcePawnLocalVarDeclaration getLocalVarDeclaration();
+  SourcePawnLocalVarStatement getLocalVarStatement();
 
   @Nullable
   SourcePawnReturnStatement getReturnStatement();
