@@ -1,4 +1,3 @@
-
 package com.sourcepawn;
 
 import com.intellij.openapi.util.IconLoader;
