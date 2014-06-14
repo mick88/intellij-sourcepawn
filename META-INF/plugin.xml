@@ -25,7 +25,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
         <fileTypeFactory implementation="com.sourcepawn.SourcePawnFileTypeFactory"/>
-        <!-- <lang.parserDefinition language="Simple" implementationClass="com.sourcepawn.SourcePawnParserDefinition"/> -->
+        <lang.parserDefinition language="SourcePawn" implementationClass="com.sourcepawn.SourcePawnParserDefinition"/>
     </extensions>
 
     <application-components>

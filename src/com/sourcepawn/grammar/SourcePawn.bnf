@@ -3,7 +3,7 @@
 // structure based off https://github.com/JetBrains/intellij-haxe/blob/master/grammar/haXe.bnf
 
 {
-    /*parserClass="com.sourcepawn.parser.SourcePawnParser"
+    parserClass="com.sourcepawn.parser.SourcePawnParser"
 
     extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
 
@@ -14,7 +14,7 @@
 
     elementTypeHolderClass="com.sourcepawn.psi.SourcePawnTypes"
     elementTypeClass="com.sourcepawn.psi.SourcePawnElementType"
-    tokenTypeClass="com.sourcepawn.psi.SourcePawnTokenType"*/
+    tokenTypeClass="com.sourcepawn.psi.SourcePawnTokenType"
 
     // from http://www.compuphase.com/pawn/Pawn_Language_Guide.pdf
     tokens = [
