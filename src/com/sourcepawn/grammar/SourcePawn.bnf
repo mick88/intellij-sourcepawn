@@ -1,5 +1,6 @@
 
 // structure based off https://github.com/JetBrains/intellij-haxe/blob/master/grammar/haXe.bnf
+// structure based off https://github.com/JetBrains/intellij-haxe/blob/master/grammar/haXe.bnf
 
 {
     /*parserClass="com.sourcepawn.parser.SourcePawnParser"
@@ -73,8 +74,8 @@
         BRACKET_SQUARE_R="]"
         BRACKET_CURLY_L="{"
         BRACKET_CURLY_R="}"
-        BRACKET_PARAN_L="("
-        BRACKET_PARAN_R=")"
+        BRACKET_PAREN_L="("
+        BRACKET_PAREN_R=")"
 
         // general syntax operators
         SYNTAX_ELLIPSIS="..."
@@ -133,7 +134,7 @@
         OTHER_STRUCT="struct"
 
         // constants
-        CONSTANT_HEX="regexp:0x\d+"
+        CONSTANT_HEX="regexp:0x[a-fA-F\d]+"
         CONSTANT_FLOAT="regexp:-?\d+\.\d+"
         CONSTANT_INTEGER="regexp:-?\d+"
         CONSTANT_BOOLEAN="regexp:(true|false)"
@@ -177,9 +178,7 @@ globalVarModifier ::= OTHER_PUBLIC | OTHER_STATIC | OTHER_NEW | OTHER_CONST | OT
 globalVarDeclaration ::= globalVarModifier varDeclarationPartList SYNTAX_SEMICOLON? {pin=1} // todo: is a pin needed?
 
 private varDeclarationPartList ::= <<comma_list varDeclarationPart>> varInit?
-varDeclarationPart ::= qualifiedIdentifier (BRACKET_SQUARE_L [sizeofExpression | literalExpression | identifier] BRACKET_SQUARE_R)*
-
-sizeofExpression ::= OP_SIZEOF BRACKET_PARAN_L identifier (BRACKET_SQUARE_L BRACKET_SQUARE_R)* BRACKET_PARAN_R
+varDeclarationPart ::= qualifiedIdentifier (BRACKET_SQUARE_L expression? BRACKET_SQUARE_R)*
 
 /*
     ... stuff
@@ -206,7 +205,7 @@ bitwiseShiftOperator ::= OP_BITSHIFTR | OP_BITUSHIFTR | OP_BITSHIFTL
 miscOperator ::= OP_DEFINED | OP_SIZEOF | OP_STATE | OP_TAGOF
 //operatorList ::= assignmentOperator | equalityOperator | relationalOperator | arithmeticAdditiveOperator | arithmeticMultiplicativeOperator | logicalOperator | bitwiseOperator | bitwiseShiftOperator | miscOperator
 
-//bracketList ::= BRACKET_SQUARE_L | BRACKET_SQUARE_R | BRACKET_CURLY_L | BRACKET_CURLY_R | BRACKET_PARAN_L | BRACKET_PARAN_R
+//bracketList ::= BRACKET_SQUARE_L | BRACKET_SQUARE_R | BRACKET_CURLY_L | BRACKET_CURLY_R | BRACKET_PAREN_L | BRACKET_PAREN_R
 //syntaxList ::= SYNTAX_ELLIPSIS | SYNTAX_DOT | SYNTAX_QUESTION | SYNTAX_COMMA | SYNTAX_COLON | SYNTAX_SEMICOLON
 //keywordList ::= KEY_ASSERT | KEY_BREAK | KEY_CASE | KEY_CONTINUE | KEY_DEFAULT | KEY_DO | KEY_ELSE | KEY_EXIT | KEY_FOR | KEY_GOTO | KEY_IF | KEY_RETURN | KEY_SLEEP | KEY_STATE | KEY_SWITCH | KEY_WHILE
 //directiveList ::= DIR_ASSERT | DIR_DEFINE | DIR_ELSE | DIR_ELSEIF | DIR_ENDIF | DIR_ENDINPUT | DIR_ERROR | DIR_FILE | DIR_IF | DIR_INCLUDE | DIR_LINE | DIR_PRAGMA | DIR_SECTION | DIR_TRYINC | DIR_UNDEF
@@ -238,15 +237,14 @@ endInputDirective ::= DIR_ENDINPUT
  */
 
 structDeclaration ::= OTHER_STRUCT identifier BRACKET_CURLY_L structList BRACKET_CURLY_R SYNTAX_SEMICOLON? {pin=1}
-structList ::= <<optional_comma_list localVarDeclaration>>
+structList ::= <<optional_comma_list localVarDeclaration>> // can use localVarDeclaration because guaranteed to have a const prefix (I think?)
 
 /*
     enum
  */
 
 enumDeclaration ::= OTHER_ENUM identifier BRACKET_CURLY_L enumList BRACKET_CURLY_R SYNTAX_SEMICOLON? {pin=1}
-enumList ::= <<optional_comma_list enumListItem>>
-enumListItem ::= qualifiedIdentifier [BRACKET_SQUARE_L literalExpression? BRACKET_SQUARE_R | OP_EQ literalExpression]
+enumList ::= <<optional_comma_list expression>>
 
 /*
     functions
@@ -254,8 +252,8 @@ enumListItem ::= qualifiedIdentifier [BRACKET_SQUARE_L literalExpression? BRACKE
 
 functionDeclaration ::= (bareFunctionDeclaration | normalFunctionDeclaration) SYNTAX_SEMICOLON?
 
-private normalFunctionDeclaration ::= [OTHER_PUBLIC | OTHER_STOCK] qualifiedIdentifier BRACKET_PARAN_L functionParameterList? BRACKET_PARAN_R functionBlock {pin=3}
-private bareFunctionDeclaration ::= (OTHER_FORWARD | OTHER_NATIVE) qualifiedIdentifier BRACKET_PARAN_L functionParameterList? BRACKET_PARAN_R {pin=1}
+private normalFunctionDeclaration ::= [OTHER_PUBLIC | OTHER_STOCK] qualifiedIdentifier BRACKET_PAREN_L functionParameterList? BRACKET_PAREN_R functionBlock {pin=3}
+private bareFunctionDeclaration ::= (OTHER_FORWARD | OTHER_NATIVE) qualifiedIdentifier BRACKET_PAREN_L functionParameterList? BRACKET_PAREN_R {pin=1}
 
 functionParameterList ::= <<comma_list functionParameter>>
 functionParameter ::= [OTHER_CONST | OP_BITAND] TAG? (SYNTAX_ELLIPSIS | identifier (BRACKET_SQUARE_L expression? BRACKET_SQUARE_R)* varInit?)
@@ -281,23 +279,19 @@ statement ::= localVarDeclaration
             | expression
 
 returnStatement ::= KEY_RETURN expression?
-ifStatement ::= KEY_IF BRACKET_PARAN_L expression BRACKET_PARAN_R functionBlock
+ifStatement ::= KEY_IF BRACKET_PAREN_L expression BRACKET_PAREN_R functionBlock
 elseStatement ::= KEY_ELSE functionBlock
-whileStatement ::= KEY_WHILE BRACKET_PARAN_L expression BRACKET_PARAN_R functionBlock
-doWhileStatement ::= KEY_DO functionBlock KEY_WHILE BRACKET_PARAN_L expression BRACKET_PARAN_R
+whileStatement ::= KEY_WHILE BRACKET_PAREN_L expression BRACKET_PAREN_R functionBlock
+doWhileStatement ::= KEY_DO functionBlock KEY_WHILE BRACKET_PAREN_L expression BRACKET_PAREN_R
 breakStatement ::= KEY_BREAK
 continueStatement ::= KEY_CONTINUE
 
-forStatement ::= KEY_FOR BRACKET_PARAN_L forInitList? SYNTAX_SEMICOLON expression? SYNTAX_SEMICOLON expression? BRACKET_PARAN_R functionBlock
-forInitList ::= <<comma_list forInitExpression>>
-forInitExpression ::= localVarDeclaration | (identifier assignExpression)
+forStatement ::= KEY_FOR BRACKET_PAREN_L forInitList? SYNTAX_SEMICOLON expression? SYNTAX_SEMICOLON expression? BRACKET_PAREN_R functionBlock
+forInitList ::= <<comma_list localVarDeclaration>>
 
-switchStatement ::= KEY_SWITCH BRACKET_PARAN_L expression BRACKET_PARAN_R switchBlock
-switchBlock ::= BRACKET_CURLY_L switchCase* defaultCase? BRACKET_CURLY_R {pin=1}
-switchCase ::= KEY_CASE <<comma_list literalExpression>> SYNTAX_COLON switchBlockStatement? {pin=1}
-defaultCase::= KEY_DEFAULT SYNTAX_COLON switchBlockStatement? {pin=1}
-
-private switchBlockStatement ::= BRACKET_CURLY_L? (statement SYNTAX_SEMICOLON?)* BRACKET_CURLY_R?
+switchStatement ::= KEY_SWITCH parenthesizedExpression switchBlock
+switchBlock ::= BRACKET_CURLY_L (switchCase SYNTAX_SEMICOLON?)+ BRACKET_CURLY_R
+switchCase ::= (KEY_DEFAULT | KEY_CASE) TAG functionBlock?
 
 /*
     expression
@@ -356,8 +350,8 @@ private value ::= TAG? (literalExpression
                         | arrayExpression
                         | identifier)
 
-miscPrefixExpression ::= miscOperator BRACKET_PARAN_L? expression BRACKET_PARAN_R?
-callExpression ::= identifier BRACKET_PARAN_L expressionList? BRACKET_PARAN_R {pin=2} // todo: should this not be an expression so no pin needed?
+miscPrefixExpression ::= miscOperator BRACKET_PAREN_L? expression BRACKET_PAREN_R?
+callExpression ::= identifier BRACKET_PAREN_L expressionList? BRACKET_PAREN_R {pin=2} // todo: should this not be an expression so no pin needed?
 arrayExpression ::= identifier (BRACKET_SQUARE_L expression? BRACKET_SQUARE_R)+ {pin=2} // todo: should this not be an expression so no pin needed?
 literalExpression ::= constantList // todo: privatise constant list?
-parenthesizedExpression ::= BRACKET_PARAN_L expression BRACKET_PARAN_R
+parenthesizedExpression ::= BRACKET_PAREN_L expression BRACKET_PAREN_R
