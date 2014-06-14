@@ -252,7 +252,7 @@ enumListItem ::= qualifiedIdentifier [BRACKET_SQUARE_L literalExpression? BRACKE
     functions
  */
 
-functionDeclaration ::= (bareFunctionDeclaration | normalFunctionDeclaration) SYNTAX_SEMICOLON? // todo: recoverWhile ?
+functionDeclaration ::= (bareFunctionDeclaration | normalFunctionDeclaration) SYNTAX_SEMICOLON?
 
 private normalFunctionDeclaration ::= [OTHER_PUBLIC | OTHER_STOCK] qualifiedIdentifier BRACKET_PARAN_L functionParameterList? BRACKET_PARAN_R functionBlock {pin=3}
 private bareFunctionDeclaration ::= (OTHER_FORWARD | OTHER_NATIVE) qualifiedIdentifier BRACKET_PARAN_L functionParameterList? BRACKET_PARAN_R {pin=1}
