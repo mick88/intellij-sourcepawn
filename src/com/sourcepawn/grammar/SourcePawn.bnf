@@ -144,6 +144,7 @@
 
         // general
         ID="regexp:\w+"
+        TAG="regexp:\w+:"
         LINE_COMMENT="regexp://.*"
         BLOCK_COMMENT="regexp:/\*~(\*/)"
         PATH="regexp:<.+>"
@@ -185,8 +186,8 @@ varDeclarationPart ::= qualifiedIdentifier (BRACKET_SQUARE_L expression? BRACKET
  */
 
 identifier ::= ID
-tag ::= identifier !WHITE_SPACE SYNTAX_COLON
-qualifiedIdentifier ::= tag? identifier
+tagIdentifier ::= TAG
+qualifiedIdentifier ::= tagIdentifier? identifier
 
 meta comma_list ::= <<param>> (SYNTAX_COMMA <<param>>)*
 meta optional_comma_list ::= <<param>> (SYNTAX_COMMA <<param>>)* SYNTAX_COMMA?
@@ -200,17 +201,17 @@ equalityOperator ::= OP_EQ_EQ | OP_NOT_EQ
 relationalOperator ::= OP_LT | OP_LT_EQ | OP_GT | OP_GT_EQ
 arithmeticAdditiveOperator ::= OP_ADD | OP_SUB
 arithmeticMultiplicativeOperator ::= OP_MUL | OP_DIV | OP_REM | OP_INC | OP_DEC
-logicalOperator ::= OP_OR | OP_AND | OP_NOT
+//logicalOperator ::= OP_OR | OP_AND | OP_NOT
 bitwiseShiftOperator ::= OP_BITSHIFTR | OP_BITUSHIFTR | OP_BITSHIFTL
-bitwiseOperator ::= OP_BITOR | OP_BITXOR | OP_BITNOT | OP_BITAND
+//bitwiseOperator ::= OP_BITOR | OP_BITXOR | OP_BITNOT | OP_BITAND
 miscOperator ::= OP_DEFINED | OP_SIZEOF | OP_STATE | OP_TAGOF
-operatorList ::= assignmentOperator | equalityOperator | relationalOperator | arithmeticAdditiveOperator | arithmeticMultiplicativeOperator | logicalOperator | bitwiseOperator | bitwiseShiftOperator | miscOperator
+//operatorList ::= assignmentOperator | equalityOperator | relationalOperator | arithmeticAdditiveOperator | arithmeticMultiplicativeOperator | logicalOperator | bitwiseOperator | bitwiseShiftOperator | miscOperator
 
-bracketList ::= BRACKET_SQUARE_L | BRACKET_SQUARE_R | BRACKET_CURLY_L | BRACKET_CURLY_R | BRACKET_PAREN_L | BRACKET_PAREN_R
-syntaxList ::= SYNTAX_ELLIPSIS | SYNTAX_DOT | SYNTAX_QUESTION | SYNTAX_COMMA | SYNTAX_COLON | SYNTAX_SEMICOLON
-keywordList ::= KEY_ASSERT | KEY_BREAK | KEY_CASE | KEY_CONTINUE | KEY_DEFAULT | KEY_DO | KEY_ELSE | KEY_EXIT | KEY_FOR | KEY_GOTO | KEY_IF | KEY_RETURN | KEY_SLEEP | KEY_STATE | KEY_SWITCH | KEY_WHILE
-directiveList ::= DIR_ASSERT | DIR_DEFINE | DIR_ELSE | DIR_ELSEIF | DIR_ENDIF | DIR_ENDINPUT | DIR_ERROR | DIR_FILE | DIR_IF | DIR_INCLUDE | DIR_LINE | DIR_PRAGMA | DIR_SECTION | DIR_TRYINC | DIR_UNDEF
-otherList ::= OTHER_FORWARD | OTHER_NATIVE | OTHER_PUBLIC | OTHER_STOCK | OTHER_CONST | OTHER_STATIC | OTHER_NEW | OTHER_DECL | OTHER_ENUM | OTHER_STRUCT
+//bracketList ::= BRACKET_SQUARE_L | BRACKET_SQUARE_R | BRACKET_CURLY_L | BRACKET_CURLY_R | BRACKET_PAREN_L | BRACKET_PAREN_R
+//syntaxList ::= SYNTAX_ELLIPSIS | SYNTAX_DOT | SYNTAX_QUESTION | SYNTAX_COMMA | SYNTAX_COLON | SYNTAX_SEMICOLON
+//keywordList ::= KEY_ASSERT | KEY_BREAK | KEY_CASE | KEY_CONTINUE | KEY_DEFAULT | KEY_DO | KEY_ELSE | KEY_EXIT | KEY_FOR | KEY_GOTO | KEY_IF | KEY_RETURN | KEY_SLEEP | KEY_STATE | KEY_SWITCH | KEY_WHILE
+//directiveList ::= DIR_ASSERT | DIR_DEFINE | DIR_ELSE | DIR_ELSEIF | DIR_ENDIF | DIR_ENDINPUT | DIR_ERROR | DIR_FILE | DIR_IF | DIR_INCLUDE | DIR_LINE | DIR_PRAGMA | DIR_SECTION | DIR_TRYINC | DIR_UNDEF
+//otherList ::= OTHER_FORWARD | OTHER_NATIVE | OTHER_PUBLIC | OTHER_STOCK | OTHER_CONST | OTHER_STATIC | OTHER_NEW | OTHER_DECL | OTHER_ENUM | OTHER_STRUCT
 constantList ::= CONSTANT_HEX | CONSTANT_FLOAT | CONSTANT_INTEGER | CONSTANT_BOOLEAN | CONSTANT_STRING | CONSTANT_CHARACTER
 
 /*
@@ -257,16 +258,16 @@ functionDeclaration ::= (funcenumDeclaration | functagDeclaration | bareFunction
 private normalFunctionDeclaration ::= [OTHER_PUBLIC | OTHER_STOCK] qualifiedIdentifier BRACKET_PAREN_L functionParameterList? BRACKET_PAREN_R functionBlock {pin=3}
 private bareFunctionDeclaration ::= (OTHER_FORWARD | OTHER_NATIVE) qualifiedIdentifier BRACKET_PAREN_L functionParameterList? BRACKET_PAREN_R {pin=1}
 
-private functagDeclaration ::=  OTHER_FUNCTAG (OTHER_PUBLIC qualifiedIdentifier | identifier tag? OTHER_PUBLIC) BRACKET_PAREN_L functionParameterList? BRACKET_PAREN_R {pin=1} // todo: could this just be identifier qualifiedIdentifier ? might pick up public
+private functagDeclaration ::=  OTHER_FUNCTAG (OTHER_PUBLIC qualifiedIdentifier | identifier tagIdentifier? OTHER_PUBLIC) BRACKET_PAREN_L functionParameterList? BRACKET_PAREN_R {pin=1} // todo: could this just be identifier qualifiedIdentifier ? might pick up public
 
 functionParameterList ::= <<comma_list functionParameter>>
-functionParameter ::= [OTHER_CONST | OP_BITAND] tag? (SYNTAX_ELLIPSIS | identifier (BRACKET_SQUARE_L expression? BRACKET_SQUARE_R)* varInit?)
+functionParameter ::= [OTHER_CONST | OP_BITAND] tagIdentifier? (SYNTAX_ELLIPSIS | identifier (BRACKET_SQUARE_L expression? BRACKET_SQUARE_R)* varInit?)
 
 functionBlock ::= blockStatement | statement
 
 funcenumDeclaration ::= OTHER_FUNCENUM identifier BRACKET_CURLY_L funcenumBlock BRACKET_CURLY_R {pin=1}
 funcenumBlock ::= <<optional_comma_list funcenumBlockDeclaration>>
-funcenumBlockDeclaration ::= tag? OTHER_PUBLIC BRACKET_PAREN_L functionParameterList? BRACKET_PAREN_R {pin=2}
+funcenumBlockDeclaration ::= tagIdentifier? OTHER_PUBLIC BRACKET_PAREN_L functionParameterList? BRACKET_PAREN_R {pin=2}
 
 /*
     statements
@@ -295,7 +296,7 @@ breakStatement ::= KEY_BREAK
 continueStatement ::= KEY_CONTINUE
 
 forStatement ::= KEY_FOR BRACKET_PAREN_L forInitList? SYNTAX_SEMICOLON expression? SYNTAX_SEMICOLON expression? BRACKET_PAREN_R functionBlock
-forInitList ::= <<comma_list localVarStatement>>
+forInitList ::= <<comma_list (expression | localVarStatement)>>
 
 switchStatement ::= KEY_SWITCH parenthesizedExpression switchBlock
 switchBlock ::= BRACKET_CURLY_L (switchCase SYNTAX_SEMICOLON?)+ BRACKET_CURLY_R
@@ -351,7 +352,7 @@ left prefixExpressionOperator ::= OP_SUB | OP_DEC | OP_INC | OP_NOT | OP_BITNOT
 private suffixExpression ::= value suffixExpressionOperator?
 left suffixExpressionOperator ::= OP_DEC | OP_INC
 
-private value ::= tag? (literalExpression
+private value ::= tagIdentifier? (literalExpression
                         | miscPrefixExpression
                         | parenthesizedExpression
                         | callExpression

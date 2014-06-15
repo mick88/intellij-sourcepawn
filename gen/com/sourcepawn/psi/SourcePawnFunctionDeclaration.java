@@ -23,6 +23,6 @@ public interface SourcePawnFunctionDeclaration extends PsiElement {
   SourcePawnQualifiedIdentifier getQualifiedIdentifier();
 
   @Nullable
-  SourcePawnTag getTag();
+  SourcePawnTagIdentifier getTagIdentifier();
 
 }

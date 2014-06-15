@@ -14,7 +14,7 @@ public interface SourcePawnFunctionParameter extends PsiElement {
   SourcePawnIdentifier getIdentifier();
 
   @Nullable
-  SourcePawnTag getTag();
+  SourcePawnTagIdentifier getTagIdentifier();
 
   @Nullable
   SourcePawnVarInit getVarInit();

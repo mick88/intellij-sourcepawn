@@ -35,10 +35,6 @@ public class SourcePawnVisitor extends PsiElementVisitor {
     visitExpression(o);
   }
 
-  public void visitBitwiseOperator(@NotNull SourcePawnBitwiseOperator o) {
-    visitPsiElement(o);
-  }
-
   public void visitBitwiseOrExpression(@NotNull SourcePawnBitwiseOrExpression o) {
     visitExpression(o);
   }
@@ -53,10 +49,6 @@ public class SourcePawnVisitor extends PsiElementVisitor {
 
   public void visitBitwiseXorExpression(@NotNull SourcePawnBitwiseXorExpression o) {
     visitExpression(o);
-  }
-
-  public void visitBracketList(@NotNull SourcePawnBracketList o) {
-    visitPsiElement(o);
   }
 
   public void visitBreakStatement(@NotNull SourcePawnBreakStatement o) {
@@ -84,10 +76,6 @@ public class SourcePawnVisitor extends PsiElementVisitor {
   }
 
   public void visitDirectiveDeclaration(@NotNull SourcePawnDirectiveDeclaration o) {
-    visitPsiElement(o);
-  }
-
-  public void visitDirectiveList(@NotNull SourcePawnDirectiveList o) {
     visitPsiElement(o);
   }
 
@@ -199,10 +187,6 @@ public class SourcePawnVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitKeywordList(@NotNull SourcePawnKeywordList o) {
-    visitPsiElement(o);
-  }
-
   public void visitLiteralExpression(@NotNull SourcePawnLiteralExpression o) {
     visitExpression(o);
   }
@@ -223,10 +207,6 @@ public class SourcePawnVisitor extends PsiElementVisitor {
     visitExpression(o);
   }
 
-  public void visitLogicalOperator(@NotNull SourcePawnLogicalOperator o) {
-    visitPsiElement(o);
-  }
-
   public void visitMiscOperator(@NotNull SourcePawnMiscOperator o) {
     visitPsiElement(o);
   }
@@ -239,15 +219,7 @@ public class SourcePawnVisitor extends PsiElementVisitor {
     visitExpression(o);
   }
 
-  public void visitOperatorList(@NotNull SourcePawnOperatorList o) {
-    visitPsiElement(o);
-  }
-
   public void visitOptionalCommaList(@NotNull SourcePawnOptionalCommaList o) {
-    visitPsiElement(o);
-  }
-
-  public void visitOtherList(@NotNull SourcePawnOtherList o) {
     visitPsiElement(o);
   }
 
@@ -307,11 +279,7 @@ public class SourcePawnVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitSyntaxList(@NotNull SourcePawnSyntaxList o) {
-    visitPsiElement(o);
-  }
-
-  public void visitTag(@NotNull SourcePawnTag o) {
+  public void visitTagIdentifier(@NotNull SourcePawnTagIdentifier o) {
     visitPsiElement(o);
   }
 

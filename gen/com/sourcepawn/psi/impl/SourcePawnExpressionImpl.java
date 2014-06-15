@@ -48,8 +48,8 @@ public class SourcePawnExpressionImpl extends ASTWrapperPsiElement implements So
 
   @Override
   @Nullable
-  public SourcePawnTag getTag() {
-    return findChildByClass(SourcePawnTag.class);
+  public SourcePawnTagIdentifier getTagIdentifier() {
+    return findChildByClass(SourcePawnTagIdentifier.class);
   }
 
 }

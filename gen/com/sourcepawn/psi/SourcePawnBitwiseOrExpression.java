@@ -20,6 +20,6 @@ public interface SourcePawnBitwiseOrExpression extends SourcePawnExpression {
   List<SourcePawnSuffixExpressionOperator> getSuffixExpressionOperatorList();
 
   @Nullable
-  SourcePawnTag getTag();
+  SourcePawnTagIdentifier getTagIdentifier();
 
 }

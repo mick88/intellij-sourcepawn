@@ -36,8 +36,8 @@ public class SourcePawnFunctionParameterImpl extends ASTWrapperPsiElement implem
 
   @Override
   @Nullable
-  public SourcePawnTag getTag() {
-    return findChildByClass(SourcePawnTag.class);
+  public SourcePawnTagIdentifier getTagIdentifier() {
+    return findChildByClass(SourcePawnTagIdentifier.class);
   }
 
   @Override

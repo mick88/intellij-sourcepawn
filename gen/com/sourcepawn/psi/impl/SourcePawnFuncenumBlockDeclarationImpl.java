@@ -30,8 +30,8 @@ public class SourcePawnFuncenumBlockDeclarationImpl extends ASTWrapperPsiElement
 
   @Override
   @Nullable
-  public SourcePawnTag getTag() {
-    return findChildByClass(SourcePawnTag.class);
+  public SourcePawnTagIdentifier getTagIdentifier() {
+    return findChildByClass(SourcePawnTagIdentifier.class);
   }
 
 }

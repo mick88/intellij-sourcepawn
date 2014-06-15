@@ -20,6 +20,6 @@ public interface SourcePawnExpression extends PsiElement {
   SourcePawnSuffixExpressionOperator getSuffixExpressionOperator();
 
   @Nullable
-  SourcePawnTag getTag();
+  SourcePawnTagIdentifier getTagIdentifier();
 
 }

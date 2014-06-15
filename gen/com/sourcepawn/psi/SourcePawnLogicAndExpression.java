@@ -20,6 +20,6 @@ public interface SourcePawnLogicAndExpression extends SourcePawnExpression {
   List<SourcePawnSuffixExpressionOperator> getSuffixExpressionOperatorList();
 
   @Nullable
-  SourcePawnTag getTag();
+  SourcePawnTagIdentifier getTagIdentifier();
 
 }

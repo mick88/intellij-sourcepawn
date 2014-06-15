@@ -47,8 +47,8 @@ public class SourcePawnBitwiseAndExpressionImpl extends SourcePawnExpressionImpl
 
   @Override
   @Nullable
-  public SourcePawnTag getTag() {
-    return findChildByClass(SourcePawnTag.class);
+  public SourcePawnTagIdentifier getTagIdentifier() {
+    return findChildByClass(SourcePawnTagIdentifier.class);
   }
 
 }

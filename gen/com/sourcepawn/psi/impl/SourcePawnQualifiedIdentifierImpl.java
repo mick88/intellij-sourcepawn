@@ -30,8 +30,8 @@ public class SourcePawnQualifiedIdentifierImpl extends ASTWrapperPsiElement impl
 
   @Override
   @Nullable
-  public SourcePawnTag getTag() {
-    return findChildByClass(SourcePawnTag.class);
+  public SourcePawnTagIdentifier getTagIdentifier() {
+    return findChildByClass(SourcePawnTagIdentifier.class);
   }
 
 }

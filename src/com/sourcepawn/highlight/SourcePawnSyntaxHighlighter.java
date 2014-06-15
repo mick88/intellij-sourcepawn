@@ -38,20 +38,15 @@ public class SourcePawnSyntaxHighlighter extends SyntaxHighlighterBase {
         keys.put(SourcePawnTypes.TAG, DefaultLanguageHighlighterColors.LABEL);
         keys.put(SourcePawnTypes.QUALIFIED_IDENTIFIER, DefaultLanguageHighlighterColors.IDENTIFIER);
 
-        keys.put(SourcePawnTypes.BRACKET_CURLY_L, DefaultLanguageHighlighterColors.BRACES);
+        /*keys.put(SourcePawnTypes.BRACKET_CURLY_L, DefaultLanguageHighlighterColors.BRACES);
         keys.put(SourcePawnTypes.BRACKET_CURLY_R, DefaultLanguageHighlighterColors.BRACES);
         keys.put(SourcePawnTypes.BRACKET_SQUARE_L, DefaultLanguageHighlighterColors.BRACKETS);
         keys.put(SourcePawnTypes.BRACKET_SQUARE_R, DefaultLanguageHighlighterColors.BRACKETS);
         keys.put(SourcePawnTypes.BRACKET_PAREN_L, DefaultLanguageHighlighterColors.PARENTHESES);
-        keys.put(SourcePawnTypes.BRACKET_PAREN_R, DefaultLanguageHighlighterColors.PARENTHESES);
+        keys.put(SourcePawnTypes.BRACKET_PAREN_R, DefaultLanguageHighlighterColors.PARENTHESES);*/
 
         keys.put(SourcePawnTypes.SYNTAX_COMMA, DefaultLanguageHighlighterColors.COMMA);
         keys.put(SourcePawnTypes.SYNTAX_SEMICOLON, DefaultLanguageHighlighterColors.SEMICOLON);
-
-        keys.put(SourcePawnTypes.OPERATOR_LIST, DefaultLanguageHighlighterColors.OPERATION_SIGN); // todo: i dont think this type OPERATOR_LIST works, need individual added? manually add all? reflection?
-        keys.put(SourcePawnTypes.KEYWORD_LIST, DefaultLanguageHighlighterColors.KEYWORD);
-        keys.put(SourcePawnTypes.OTHER_LIST, DefaultLanguageHighlighterColors.KEYWORD);
-        keys.put(SourcePawnTypes.DIRECTIVE_LIST, DefaultLanguageHighlighterColors.METADATA);
     }
 
     private static final TextAttributesKey[] EMPTY_KEYS = new TextAttributesKey[0];
