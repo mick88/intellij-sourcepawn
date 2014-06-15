@@ -145,7 +145,8 @@
         // general
         ID="regexp:\w+"
         LINE_COMMENT="regexp://.*"
-        BLOCK_COMMENT="regexp:/\*(.|[\r\n])+?\*/"
+        DOC_COMMENT="regexp:/\*\*~(\*/)"
+        BLOCK_COMMENT="regexp:/\*~(\*/)"
         PATH="regexp:<.+>"
     ]
 
@@ -217,6 +218,7 @@ constantList ::= CONSTANT_HEX | CONSTANT_FLOAT | CONSTANT_INTEGER | CONSTANT_BOO
     directives
  */
 
+// todo: just make directives a 'regex:#\w+ .*' ?
 directiveDeclaration ::= includeDirective
                      | defineDirective | undefineDirective
                      | pragmaDirective

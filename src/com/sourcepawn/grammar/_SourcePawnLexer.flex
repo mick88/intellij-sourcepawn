@@ -31,7 +31,8 @@ CONSTANT_STRING=\"([^\"\\]|\\.)*\"
 CONSTANT_CHARACTER='(\\?.|\\[0-9]{3}|\\x[:letter:]{3})'
 ID=[a-zA-Z_0-9]+
 LINE_COMMENT="//".*
-BLOCK_COMMENT="/"\*(.|[\r\n])+?\*"/"
+DOC_COMMENT="/"\*\*~(\*"/")
+BLOCK_COMMENT="/"\*~(\*"/")
 PATH=<.+>
 
 %%
@@ -143,6 +144,7 @@ PATH=<.+>
   {CONSTANT_CHARACTER}         { return CONSTANT_CHARACTER; }
   {ID}                         { return ID; }
   {LINE_COMMENT}               { return LINE_COMMENT; }
+  {DOC_COMMENT}                { return DOC_COMMENT; }
   {BLOCK_COMMENT}              { return BLOCK_COMMENT; }
   {PATH}                       { return PATH; }
 

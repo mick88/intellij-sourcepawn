@@ -114,6 +114,7 @@ public interface SourcePawnTypes {
   IElementType DIR_SECTION = new SourcePawnTokenType("#section");
   IElementType DIR_TRYINC = new SourcePawnTokenType("#tryinclude");
   IElementType DIR_UNDEF = new SourcePawnTokenType("#undef");
+  IElementType DOC_COMMENT = new SourcePawnTokenType("DOC_COMMENT");
   IElementType ID = new SourcePawnTokenType("ID");
   IElementType KEY_ASSERT = new SourcePawnTokenType("assert");
   IElementType KEY_BREAK = new SourcePawnTokenType("break");
