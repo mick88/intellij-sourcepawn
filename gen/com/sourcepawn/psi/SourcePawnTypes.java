@@ -15,10 +15,12 @@ public interface SourcePawnTypes {
   IElementType ASSIGNMENT_OPERATOR = new SourcePawnElementType("ASSIGNMENT_OPERATOR");
   IElementType ASSIGN_EXPRESSION = new SourcePawnElementType("ASSIGN_EXPRESSION");
   IElementType BITWISE_AND_EXPRESSION = new SourcePawnElementType("BITWISE_AND_EXPRESSION");
+  IElementType BITWISE_OPERATOR = new SourcePawnElementType("BITWISE_OPERATOR");
   IElementType BITWISE_OR_EXPRESSION = new SourcePawnElementType("BITWISE_OR_EXPRESSION");
   IElementType BITWISE_SHIFT_EXPRESSION = new SourcePawnElementType("BITWISE_SHIFT_EXPRESSION");
   IElementType BITWISE_SHIFT_OPERATOR = new SourcePawnElementType("BITWISE_SHIFT_OPERATOR");
   IElementType BITWISE_XOR_EXPRESSION = new SourcePawnElementType("BITWISE_XOR_EXPRESSION");
+  IElementType BRACKET_LIST = new SourcePawnElementType("BRACKET_LIST");
   IElementType BREAK_STATEMENT = new SourcePawnElementType("BREAK_STATEMENT");
   IElementType CALL_EXPRESSION = new SourcePawnElementType("CALL_EXPRESSION");
   IElementType COMMA_LIST = new SourcePawnElementType("COMMA_LIST");
@@ -26,6 +28,7 @@ public interface SourcePawnTypes {
   IElementType CONTINUE_STATEMENT = new SourcePawnElementType("CONTINUE_STATEMENT");
   IElementType DEFINE_DIRECTIVE = new SourcePawnElementType("DEFINE_DIRECTIVE");
   IElementType DIRECTIVE_DECLARATION = new SourcePawnElementType("DIRECTIVE_DECLARATION");
+  IElementType DIRECTIVE_LIST = new SourcePawnElementType("DIRECTIVE_LIST");
   IElementType DO_WHILE_STATEMENT = new SourcePawnElementType("DO_WHILE_STATEMENT");
   IElementType ELSEIF_DIRECTIVE = new SourcePawnElementType("ELSEIF_DIRECTIVE");
   IElementType ELSE_DIRECTIVE = new SourcePawnElementType("ELSE_DIRECTIVE");
@@ -53,15 +56,19 @@ public interface SourcePawnTypes {
   IElementType IF_DIRECTIVE = new SourcePawnElementType("IF_DIRECTIVE");
   IElementType IF_STATEMENT = new SourcePawnElementType("IF_STATEMENT");
   IElementType INCLUDE_DIRECTIVE = new SourcePawnElementType("INCLUDE_DIRECTIVE");
+  IElementType KEYWORD_LIST = new SourcePawnElementType("KEYWORD_LIST");
   IElementType LITERAL_EXPRESSION = new SourcePawnElementType("LITERAL_EXPRESSION");
   IElementType LOCAL_VAR_MODIFIER = new SourcePawnElementType("LOCAL_VAR_MODIFIER");
   IElementType LOCAL_VAR_STATEMENT = new SourcePawnElementType("LOCAL_VAR_STATEMENT");
+  IElementType LOGICAL_OPERATOR = new SourcePawnElementType("LOGICAL_OPERATOR");
   IElementType LOGIC_AND_EXPRESSION = new SourcePawnElementType("LOGIC_AND_EXPRESSION");
   IElementType LOGIC_OR_EXPRESSION = new SourcePawnElementType("LOGIC_OR_EXPRESSION");
   IElementType MISC_OPERATOR = new SourcePawnElementType("MISC_OPERATOR");
   IElementType MISC_PREFIX_EXPRESSION = new SourcePawnElementType("MISC_PREFIX_EXPRESSION");
   IElementType MULTIPLICATIVE_EXPRESSION = new SourcePawnElementType("MULTIPLICATIVE_EXPRESSION");
+  IElementType OPERATOR_LIST = new SourcePawnElementType("OPERATOR_LIST");
   IElementType OPTIONAL_COMMA_LIST = new SourcePawnElementType("OPTIONAL_COMMA_LIST");
+  IElementType OTHER_LIST = new SourcePawnElementType("OTHER_LIST");
   IElementType PARENTHESIZED_EXPRESSION = new SourcePawnElementType("PARENTHESIZED_EXPRESSION");
   IElementType PRAGMA_DIRECTIVE = new SourcePawnElementType("PRAGMA_DIRECTIVE");
   IElementType PREFIX_EXPRESSION_OPERATOR = new SourcePawnElementType("PREFIX_EXPRESSION_OPERATOR");
@@ -76,6 +83,7 @@ public interface SourcePawnTypes {
   IElementType SWITCH_BLOCK = new SourcePawnElementType("SWITCH_BLOCK");
   IElementType SWITCH_CASE = new SourcePawnElementType("SWITCH_CASE");
   IElementType SWITCH_STATEMENT = new SourcePawnElementType("SWITCH_STATEMENT");
+  IElementType SYNTAX_LIST = new SourcePawnElementType("SYNTAX_LIST");
   IElementType TAG = new SourcePawnElementType("TAG");
   IElementType TERNARY_EXPRESSION = new SourcePawnElementType("TERNARY_EXPRESSION");
   IElementType UNDEFINE_DIRECTIVE = new SourcePawnElementType("UNDEFINE_DIRECTIVE");
@@ -114,7 +122,6 @@ public interface SourcePawnTypes {
   IElementType DIR_SECTION = new SourcePawnTokenType("#section");
   IElementType DIR_TRYINC = new SourcePawnTokenType("#tryinclude");
   IElementType DIR_UNDEF = new SourcePawnTokenType("#undef");
-  IElementType DOC_COMMENT = new SourcePawnTokenType("DOC_COMMENT");
   IElementType ID = new SourcePawnTokenType("ID");
   IElementType KEY_ASSERT = new SourcePawnTokenType("assert");
   IElementType KEY_BREAK = new SourcePawnTokenType("break");
@@ -217,6 +224,9 @@ public interface SourcePawnTypes {
       else if (type == BITWISE_AND_EXPRESSION) {
         return new SourcePawnBitwiseAndExpressionImpl(node);
       }
+      else if (type == BITWISE_OPERATOR) {
+        return new SourcePawnBitwiseOperatorImpl(node);
+      }
       else if (type == BITWISE_OR_EXPRESSION) {
         return new SourcePawnBitwiseOrExpressionImpl(node);
       }
@@ -228,6 +238,9 @@ public interface SourcePawnTypes {
       }
       else if (type == BITWISE_XOR_EXPRESSION) {
         return new SourcePawnBitwiseXorExpressionImpl(node);
+      }
+      else if (type == BRACKET_LIST) {
+        return new SourcePawnBracketListImpl(node);
       }
       else if (type == BREAK_STATEMENT) {
         return new SourcePawnBreakStatementImpl(node);
@@ -249,6 +262,9 @@ public interface SourcePawnTypes {
       }
       else if (type == DIRECTIVE_DECLARATION) {
         return new SourcePawnDirectiveDeclarationImpl(node);
+      }
+      else if (type == DIRECTIVE_LIST) {
+        return new SourcePawnDirectiveListImpl(node);
       }
       else if (type == DO_WHILE_STATEMENT) {
         return new SourcePawnDoWhileStatementImpl(node);
@@ -331,6 +347,9 @@ public interface SourcePawnTypes {
       else if (type == INCLUDE_DIRECTIVE) {
         return new SourcePawnIncludeDirectiveImpl(node);
       }
+      else if (type == KEYWORD_LIST) {
+        return new SourcePawnKeywordListImpl(node);
+      }
       else if (type == LITERAL_EXPRESSION) {
         return new SourcePawnLiteralExpressionImpl(node);
       }
@@ -339,6 +358,9 @@ public interface SourcePawnTypes {
       }
       else if (type == LOCAL_VAR_STATEMENT) {
         return new SourcePawnLocalVarStatementImpl(node);
+      }
+      else if (type == LOGICAL_OPERATOR) {
+        return new SourcePawnLogicalOperatorImpl(node);
       }
       else if (type == LOGIC_AND_EXPRESSION) {
         return new SourcePawnLogicAndExpressionImpl(node);
@@ -355,8 +377,14 @@ public interface SourcePawnTypes {
       else if (type == MULTIPLICATIVE_EXPRESSION) {
         return new SourcePawnMultiplicativeExpressionImpl(node);
       }
+      else if (type == OPERATOR_LIST) {
+        return new SourcePawnOperatorListImpl(node);
+      }
       else if (type == OPTIONAL_COMMA_LIST) {
         return new SourcePawnOptionalCommaListImpl(node);
+      }
+      else if (type == OTHER_LIST) {
+        return new SourcePawnOtherListImpl(node);
       }
       else if (type == PARENTHESIZED_EXPRESSION) {
         return new SourcePawnParenthesizedExpressionImpl(node);
@@ -399,6 +427,9 @@ public interface SourcePawnTypes {
       }
       else if (type == SWITCH_STATEMENT) {
         return new SourcePawnSwitchStatementImpl(node);
+      }
+      else if (type == SYNTAX_LIST) {
+        return new SourcePawnSyntaxListImpl(node);
       }
       else if (type == TAG) {
         return new SourcePawnTagImpl(node);

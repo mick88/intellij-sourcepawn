@@ -145,7 +145,6 @@
         // general
         ID="regexp:\w+"
         LINE_COMMENT="regexp://.*"
-        DOC_COMMENT="regexp:/\*\*~(\*/)"
         BLOCK_COMMENT="regexp:/\*~(\*/)"
         PATH="regexp:<.+>"
     ]
@@ -201,17 +200,17 @@ equalityOperator ::= OP_EQ_EQ | OP_NOT_EQ
 relationalOperator ::= OP_LT | OP_LT_EQ | OP_GT | OP_GT_EQ
 arithmeticAdditiveOperator ::= OP_ADD | OP_SUB
 arithmeticMultiplicativeOperator ::= OP_MUL | OP_DIV | OP_REM | OP_INC | OP_DEC
-//logicalOperator ::= OP_OR | OP_AND | OP_NOT
+logicalOperator ::= OP_OR | OP_AND | OP_NOT
 bitwiseShiftOperator ::= OP_BITSHIFTR | OP_BITUSHIFTR | OP_BITSHIFTL
-//bitwiseOperator ::= OP_BITOR | OP_BITXOR | OP_BITNOT | OP_BITAND
+bitwiseOperator ::= OP_BITOR | OP_BITXOR | OP_BITNOT | OP_BITAND
 miscOperator ::= OP_DEFINED | OP_SIZEOF | OP_STATE | OP_TAGOF
-//operatorList ::= assignmentOperator | equalityOperator | relationalOperator | arithmeticAdditiveOperator | arithmeticMultiplicativeOperator | logicalOperator | bitwiseOperator | bitwiseShiftOperator | miscOperator
+operatorList ::= assignmentOperator | equalityOperator | relationalOperator | arithmeticAdditiveOperator | arithmeticMultiplicativeOperator | logicalOperator | bitwiseOperator | bitwiseShiftOperator | miscOperator
 
-//bracketList ::= BRACKET_SQUARE_L | BRACKET_SQUARE_R | BRACKET_CURLY_L | BRACKET_CURLY_R | BRACKET_PAREN_L | BRACKET_PAREN_R
-//syntaxList ::= SYNTAX_ELLIPSIS | SYNTAX_DOT | SYNTAX_QUESTION | SYNTAX_COMMA | SYNTAX_COLON | SYNTAX_SEMICOLON
-//keywordList ::= KEY_ASSERT | KEY_BREAK | KEY_CASE | KEY_CONTINUE | KEY_DEFAULT | KEY_DO | KEY_ELSE | KEY_EXIT | KEY_FOR | KEY_GOTO | KEY_IF | KEY_RETURN | KEY_SLEEP | KEY_STATE | KEY_SWITCH | KEY_WHILE
-//directiveList ::= DIR_ASSERT | DIR_DEFINE | DIR_ELSE | DIR_ELSEIF | DIR_ENDIF | DIR_ENDINPUT | DIR_ERROR | DIR_FILE | DIR_IF | DIR_INCLUDE | DIR_LINE | DIR_PRAGMA | DIR_SECTION | DIR_TRYINC | DIR_UNDEF
-//otherList ::= OTHER_FORWARD | OTHER_NATIVE | OTHER_PUBLIC | OTHER_STOCK | OTHER_CONST | OTHER_STATIC | OTHER_NEW | OTHER_DECL | OTHER_ENUM | OTHER_STRUCT
+bracketList ::= BRACKET_SQUARE_L | BRACKET_SQUARE_R | BRACKET_CURLY_L | BRACKET_CURLY_R | BRACKET_PAREN_L | BRACKET_PAREN_R
+syntaxList ::= SYNTAX_ELLIPSIS | SYNTAX_DOT | SYNTAX_QUESTION | SYNTAX_COMMA | SYNTAX_COLON | SYNTAX_SEMICOLON
+keywordList ::= KEY_ASSERT | KEY_BREAK | KEY_CASE | KEY_CONTINUE | KEY_DEFAULT | KEY_DO | KEY_ELSE | KEY_EXIT | KEY_FOR | KEY_GOTO | KEY_IF | KEY_RETURN | KEY_SLEEP | KEY_STATE | KEY_SWITCH | KEY_WHILE
+directiveList ::= DIR_ASSERT | DIR_DEFINE | DIR_ELSE | DIR_ELSEIF | DIR_ENDIF | DIR_ENDINPUT | DIR_ERROR | DIR_FILE | DIR_IF | DIR_INCLUDE | DIR_LINE | DIR_PRAGMA | DIR_SECTION | DIR_TRYINC | DIR_UNDEF
+otherList ::= OTHER_FORWARD | OTHER_NATIVE | OTHER_PUBLIC | OTHER_STOCK | OTHER_CONST | OTHER_STATIC | OTHER_NEW | OTHER_DECL | OTHER_ENUM | OTHER_STRUCT
 constantList ::= CONSTANT_HEX | CONSTANT_FLOAT | CONSTANT_INTEGER | CONSTANT_BOOLEAN | CONSTANT_STRING | CONSTANT_CHARACTER
 
 /*

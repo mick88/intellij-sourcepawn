@@ -27,6 +27,7 @@
         <fileTypeFactory implementation="com.sourcepawn.files.SourcePawnFileTypeFactory"/>
         <lang.parserDefinition language="SourcePawn" implementationClass="com.sourcepawn.SourcePawnParserDefinition"/>
 		<lang.syntaxHighlighterFactory key="SourcePawn" implementationClass="com.sourcepawn.highlight.SourcePawnHighlighterFactory"/>
+		<colorSettingsPage implementation="com.sourcepawn.highlight.SourcePawnColorsPage"/>
     </extensions>
 
     <application-components>
