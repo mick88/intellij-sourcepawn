@@ -1,7 +1,7 @@
 package com.sourcepawn.files;
 
 import com.intellij.openapi.fileTypes.LanguageFileType;
-import com.sourcepawn.SourcePawnIcon;
+import com.sourcepawn.icons.SourcePawnIcon;
 import com.sourcepawn.SourcePawnLanguage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

@@ -1,4 +1,4 @@
-package com.sourcepawn;
+package com.sourcepawn.highlight;
 
 import com.intellij.lexer.Lexer;
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
